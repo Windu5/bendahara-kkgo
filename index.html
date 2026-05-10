@@ -425,7 +425,7 @@
 
                     <!-- TAB: IURAN (DATA IURAN SEKOLAH) -->
                     <template x-if="activeTab === 'iuran'">
-                        <div x-data="iuranApp" @open-add-iuran.window="openModal()" x-transition.opacity class="pb-24 md:pb-0 h-full">
+                        <div x-data="iuranApp" @open-add-iuran.window="openModal()" x-transition.opacity class="pb-24 md:pb-0">
                             
                             <!-- Modal Form Tambah/Edit Data Sekolah -->
                             <div x-show="isModalOpen" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4" style="display: none;">
