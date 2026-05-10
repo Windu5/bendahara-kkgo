@@ -184,7 +184,7 @@
                     <template x-if="activeTab === 'kas'">
                         <div x-data="bkuApp" @open-add-modal.window="openAddModal()" x-transition.opacity>
                             
-                            <!-- MODAL KONFIRMASI HAPUS (Modern Confirm) -->
+                            <!-- MODAL KONFIRMASI HAPUS -->
                             <div x-show="confirmModal.open" class="print:hidden fixed inset-0 z-[100] flex items-center justify-center px-4" style="display: none;">
                                 <div class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm" @click="confirmModal.open = false"></div>
                                 <div class="bg-white rounded-2xl p-6 shadow-xl z-10 max-w-sm w-full transform transition-all">
@@ -281,14 +281,14 @@
                                     
                                     <!-- FORMAT CETAK BKU STANDAR (HANYA TAMPIL SAAT PRINT) -->
                                     <div class="hidden print:block w-full bg-white pb-10">
-                                        <div class="mb-4">
-                                            <h2 class="text-xl font-bold text-black uppercase">Laporan Buku Kas Umum (BKU)</h2>
+                                        <div class="mb-4 text-center">
+                                            <h2 class="text-xl font-bold text-black">Laporan Buku Kas Umum (BKU)</h2>
                                             <p class="text-black font-semibold mt-1 text-base" x-text="'Periode Bulan: ' + selectedMonth"></p>
                                         </div>
                                         
-                                        <table class="w-full border-collapse border border-black text-black">
+                                        <table class="w-full border-collapse border border-black text-black mt-4">
                                             <thead>
-                                                <tr class="bg-gray-100 text-sm">
+                                                <tr class="text-sm">
                                                     <th class="border border-black p-2 text-center w-10">NO</th>
                                                     <th class="border border-black p-2 text-center w-24">TGL</th>
                                                     <th class="border border-black p-2 text-center">URAIAN</th>
@@ -298,7 +298,6 @@
                                                 </tr>
                                             </thead>
                                             <tbody class="text-sm">
-                                                <!-- Loop data yang sudah dikalkulasi saldonya -->
                                                 <template x-for="(trx, index) in processedTransactions" :key="trx.id">
                                                     <tr>
                                                         <td class="border border-black p-2 text-center" x-text="index + 1"></td>
@@ -309,47 +308,35 @@
                                                         <td class="border border-black p-2 text-right font-bold" x-text="formatRupiah(trx.saldo)"></td>
                                                     </tr>
                                                 </template>
-                                                <!-- Jika data kosong -->
                                                 <template x-if="processedTransactions.length === 0">
                                                     <tr>
                                                         <td colspan="6" class="border border-black p-4 text-center italic text-gray-500">Tidak ada transaksi pada bulan ini.</td>
                                                     </tr>
                                                 </template>
                                             </tbody>
-                                            <tfoot class="text-sm font-bold bg-gray-100 text-black">
-                                                <tr>
-                                                    <td colspan="3" class="border border-black p-2 text-right uppercase">Total Kas Bulan Ini</td>
-                                                    <td class="border border-black p-2 text-right text-green-800" x-text="formatRupiah(totalIncome)"></td>
-                                                    <td class="border border-black p-2 text-right text-red-800" x-text="formatRupiah(totalExpense)"></td>
-                                                    <td class="border border-black p-2 text-right text-blue-800" x-text="formatRupiah(totalIncome - totalExpense)"></td>
-                                                </tr>
-                                            </tfoot>
                                         </table>
                                     </div>
 
                                     <!-- TAMPILAN LAYAR APLIKASI (DISEMBUNYIKAN SAAT PRINT) -->
-                                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col relative print:hidden">
+                                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col print:hidden overflow-hidden relative">
                                         
                                         <!-- Header Daftar Transaksi & Filter Bulan + ICON CETAK -->
-                                        <!-- print:hidden agar header filter ini hilang saat di print -->
-                                        <div class="sticky top-0 z-30 pt-4 h-16 md:h-[72px] px-4 md:px-5 border-b border-gray-100 flex justify-between items-center bg-white/95 backdrop-blur-md rounded-t-2xl shrink-0 shadow-sm print:hidden">
-                                            <h3 class="font-bold text-gray-800 text-base md:text-lg">Riwayat BKU</h3>
+                                        <!-- Tinggi di-set h-14 di mobile untuk hemat ruang -->
+                                        <div class="sticky top-0 z-30 h-14 md:h-16 px-4 md:px-5 border-b border-gray-200 flex justify-between items-center bg-white/95 backdrop-blur-md shrink-0">
+                                            <h3 class="font-bold text-gray-800 text-sm md:text-lg">Riwayat BKU</h3>
                                             
-                                            <!-- Wrapper Flex Untuk Filter & Tombol Cetak -->
                                             <div class="flex items-center gap-2">
                                                 <input type="month" x-model="selectedMonth" @change="fetchTransactions()" 
                                                     class="px-2 py-1 md:px-3 md:py-1.5 text-xs md:text-sm border border-gray-200 rounded-lg bg-gray-50 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer font-medium">
                                                 
-                                                <!-- TOMBOL CETAK LAPORAN -->
-                                                <button @click="window.print()" class="p-1 md:p-2 text-blue-600 border border-blue-200 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors active:scale-95" title="Cetak Laporan">
-                                                    <!-- Icon Print SVG -->
+                                                <button @click="window.print()" class="p-1 md:p-1.5 text-blue-600 border border-blue-200 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors active:scale-95" title="Cetak Laporan">
                                                     <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                                                 </button>
                                             </div>
                                         </div>
 
                                         <!-- Konten Daftar Transaksi -->
-                                        <div class="bg-gray-50/30 pb-2">
+                                        <div class="bg-white flex-1 relative min-h-[200px]">
                                             <!-- Loader saat menarik data -->
                                             <div x-show="isLoadingData" class="flex justify-center items-center p-10 print:hidden">
                                                 <div class="animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
@@ -364,64 +351,58 @@
                                                 </div>
                                             </template>
 
-                                            <!-- Tampilan List Transaksi (Kompak/Tabel + Nomor) STRUKTUR ASLI -->
+                                            <!-- Tampilan List Transaksi -->
                                             <template x-if="!isLoadingData && transactions.length > 0">
-                                                <div class="w-full">
-                                                    <table class="w-full text-left border-collapse">
-                                                        <thead class="sticky top-16 md:top-[72px] z-20 bg-gray-100/95 backdrop-blur-md shadow-sm">
-                                                            <tr class="text-[9px] md:text-[11px] text-gray-500 uppercase tracking-wider border-y border-gray-200">
-                                                                <th class="px-2 py-2 font-semibold text-center w-8">No</th>
-                                                                <th class="px-2 py-2 font-semibold w-12 md:w-16">Tgl</th>
-                                                                <th class="px-2 py-2 font-semibold">Uraian</th>
-                                                                <th class="px-2 py-2 font-semibold text-right">Nominal</th>
-                                                                <!-- Tambahkan print:hidden agar header Aksi hilang saat dicetak -->
-                                                                <th class="px-2 py-2 font-semibold text-center w-14 print:hidden">Aksi</th>
+                                                <table class="w-full text-left border-collapse">
+                                                    <!-- Table header offset: Sinkron dengan tinggi header card -->
+                                                    <!-- top-14 untuk mobile (56px), top-16 untuk desktop (64px) agar menempel persis di bawahnya -->
+                                                    <thead class="sticky top-14 md:top-16 z-20 bg-gray-50/95 backdrop-blur-md border-b border-gray-200">
+                                                        <tr class="text-[9px] md:text-[11px] text-gray-500 uppercase tracking-wider">
+                                                            <th class="px-2 py-2 font-semibold text-center w-8">No</th>
+                                                            <th class="px-2 py-2 font-semibold w-12 md:w-16">Tgl</th>
+                                                            <th class="px-2 py-2 font-semibold">Uraian</th>
+                                                            <th class="px-2 py-2 font-semibold text-right">Nominal</th>
+                                                            <th class="px-2 py-2 font-semibold text-center w-14">Aksi</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="divide-y divide-gray-100 bg-white">
+                                                        <template x-for="(trx, index) in transactions" :key="trx.id">
+                                                            <tr class="hover:bg-gray-50/80 transition-colors">
+                                                                <td class="px-1 py-2 align-top text-center">
+                                                                    <div class="text-[10px] md:text-[11px] font-semibold text-gray-500 mt-1" x-text="index + 1"></div>
+                                                                </td>
+                                                                <td class="px-2 py-2 align-top">
+                                                                    <div class="text-[10px] md:text-[11px] font-semibold text-gray-500 mt-1" x-text="trx.date.substring(8, 10) + '/' + trx.date.substring(5, 7)"></div>
+                                                                </td>
+                                                                <td class="px-2 py-2.5 align-top">
+                                                                    <div class="text-xs md:text-sm font-bold text-gray-800 leading-tight break-words" x-text="trx.description"></div>
+                                                                    <div class="text-[9px] md:text-[10px] text-gray-400 font-semibold uppercase mt-0.5" x-text="trx.category"></div>
+                                                                </td>
+                                                                <td class="px-2 py-2 align-top text-right whitespace-nowrap">
+                                                                    <div class="text-[11px] md:text-[12px] font-extrabold mt-1" :class="trx.type === 'income' ? 'text-green-600' : 'text-red-600'">
+                                                                        <span x-text="trx.type === 'income' ? '+' : '-'"></span>
+                                                                        <span x-text="formatRupiah(trx.amount)"></span>
+                                                                    </div>
+                                                                </td>
+                                                                <td class="px-2 py-2 align-top text-center whitespace-nowrap">
+                                                                    <div class="flex items-center justify-center gap-1.5 mt-0.5">
+                                                                        <button @click="editTransaction(trx)" class="text-blue-500 hover:text-blue-700 bg-blue-50 p-1 md:p-1.5 rounded transition active:scale-95" title="Edit">
+                                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                                                        </button>
+                                                                        <button @click="confirmDelete(trx.id)" class="text-red-500 hover:text-red-700 bg-red-50 p-1 md:p-1.5 rounded transition active:scale-95" title="Hapus">
+                                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                                        </button>
+                                                                    </div>
+                                                                </td>
                                                             </tr>
-                                                        </thead>
-                                                        <tbody class="divide-y divide-gray-100 bg-white">
-                                                            <template x-for="(trx, index) in transactions" :key="trx.id">
-                                                                <tr class="hover:bg-gray-50/80 transition-colors">
-                                                                    <!-- Kolom No -->
-                                                                    <td class="px-1 py-2 align-top text-center">
-                                                                        <div class="text-[10px] md:text-[11px] font-semibold text-gray-500 mt-1" x-text="index + 1"></div>
-                                                                    </td>
-                                                                    <!-- Kolom Tanggal -->
-                                                                    <td class="px-2 py-2 align-top">
-                                                                        <div class="text-[10px] md:text-[11px] font-semibold text-gray-500 mt-1" x-text="trx.date.substring(8, 10) + '/' + trx.date.substring(5, 7)"></div>
-                                                                    </td>
-                                                                    <!-- Kolom Uraian & Kategori -->
-                                                                    <td class="px-2 py-2.5 align-top">
-                                                                        <div class="text-xs md:text-sm font-bold text-gray-800 leading-tight break-words" x-text="trx.description"></div>
-                                                                        <div class="text-[9px] md:text-[10px] text-gray-400 font-semibold uppercase mt-0.5" x-text="trx.category"></div>
-                                                                    </td>
-                                                                    <!-- Kolom Nominal -->
-                                                                    <td class="px-2 py-2 align-top text-right whitespace-nowrap">
-                                                                        <div class="text-[11px] md:text-[12px] font-extrabold mt-1" :class="trx.type === 'income' ? 'text-green-600' : 'text-red-600'">
-                                                                            <span x-text="trx.type === 'income' ? '+' : '-'"></span>
-                                                                            <span x-text="formatRupiah(trx.amount)"></span>
-                                                                        </div>
-                                                                    </td>
-                                                                    <!-- Kolom Aksi -> ditambahkan print:hidden agar tombol edit/hapus hilang di kertas -->
-                                                                    <td class="px-2 py-2 align-top text-center whitespace-nowrap print:hidden">
-                                                                        <div class="flex items-center justify-center gap-1.5 mt-0.5">
-                                                                            <button @click="editTransaction(trx)" class="text-blue-500 hover:text-blue-700 bg-blue-50 p-1 md:p-1.5 rounded transition active:scale-95" title="Edit">
-                                                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                                                                            </button>
-                                                                            <button @click="confirmDelete(trx.id)" class="text-red-500 hover:text-red-700 bg-red-50 p-1 md:p-1.5 rounded transition active:scale-95" title="Hapus">
-                                                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                                                            </button>
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-                                                            </template>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
+                                                        </template>
+                                                    </tbody>
+                                                </table>
                                             </template>
                                         </div>
 
                                         <!-- Footer/Ringkasan Bawah -->
-                                        <div class="p-3 md:p-4 bg-white border-t border-gray-200 shrink-0 rounded-b-2xl">
+                                        <div class="p-3 md:p-4 bg-gray-50/80 border-t border-gray-200 shrink-0">
                                             <div class="flex justify-between items-center mb-1">
                                                 <span class="text-[10px] md:text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Total Pemasukan</span>
                                                 <span class="text-[11px] md:text-xs font-extrabold text-green-600" x-text="'+ ' + formatRupiah(totalIncome)"></span>
@@ -443,7 +424,7 @@
                         </div>
                     </template>
 
-                    <!-- TAB: IURAN & SETTING (Tetap sama) -->
+                    <!-- TAB: IURAN & SETTING -->
                     <template x-if="activeTab === 'iuran'">
                         <div x-transition.opacity class="p-4 md:p-8"><div class="bg-white p-8 rounded-2xl shadow-sm text-center"><h3 class="text-gray-600">Modul Iuran Sekolah dalam pengembangan.</h3></div></div>
                     </template>
@@ -474,9 +455,6 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // =====================================================================
-        // SERVICE LAYER DATABASE
-        // =====================================================================
         const FinanceService = {
             async addTransaction(data, userUid) {
                 if (data.amount <= 0) throw new Error("Jumlah harus lebih dari 0");
@@ -516,7 +494,6 @@
                 return await deleteDoc(doc(db, "transactions", id));
             },
 
-            // Fungsi untuk menarik data Realtime berdasarkan bulan
             listenTransactions(monthString, callback) {
                 const q = query(collection(db, "transactions"), where("month", "==", monthString));
                 
@@ -527,7 +504,6 @@
                     });
                     
                     try {
-                        // Sorting: Terlama di atas (No 1), Terbaru di bawah (Ascending)
                         data.sort((a, b) => {
                             const dateA = a.date ? new Date(a.date).getTime() : 0;
                             const dateB = b.date ? new Date(b.date).getTime() : 0;
@@ -565,9 +541,6 @@
                 async logout() { this.loading = true; try { await signOut(auth); } finally { this.loading = false; } }
             }));
 
-            // =====================================================================
-            // LOGIKA KOMPONEN BKU KAS
-            // =====================================================================
             Alpine.data('bkuApp', () => ({
                 isSubmitting: false,
                 isLoadingData: true,
@@ -624,7 +597,6 @@
                     return this.transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
                 },
 
-                // Menghitung Saldo Berjalan (Running Balance) Khusus Untuk Format Cetak
                 get processedTransactions() {
                     let currentSaldo = 0;
                     return this.transactions.map(trx => {
