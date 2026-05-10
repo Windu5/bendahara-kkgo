@@ -1,10 +1,12 @@
-const CACHE_NAME = 'KKGO-digital-v1';
+const CACHE_NAME = 'kkgo-digital-v1';
 
 // Gunakan relative path agar kompatibel dengan arsitektur GitHub Pages
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
     './manifest.json',
+    './icon-192.png',
+    './icon-512.png',
     'https://cdn.tailwindcss.com',
     'https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/module.esm.js'
 ];
