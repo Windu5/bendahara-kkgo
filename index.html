@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bendahara App | Modern System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900">
+
+    <div x-data="authApp" class="min-h-screen flex flex-col">
+        
+        <!-- LOADING STATE -->
+        <div x-show="loading" class="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
+        </div>
+
+        <!-- LOGIN PAGE -->
+        <template x-if="!user">
+            <div class="flex-grow flex items-center justify-center p-4">
+                <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md border border-gray-100">
+                    <h2 class="text-2xl font-bold mb-6 text-center text-blue-600">Login Bendahara</h2>
+
+                    <div x-show="errorMessage" x-text="errorMessage" x-transition 
+                         class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 text-sm rounded-lg text-center" style="display: none;">
+                    </div>
+
+                    <form @submit.prevent="login()">
+                        <div class="mb-4 hidden">
+                            <label class="block text-sm font-medium mb-1">Email</label>
+                            <input type="email" x-model="formData.email" required
+                                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-1">Password</label>
+                            <input type="password" x-model="formData.password" required autofocus
+                                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                        <button type="submit" 
+                            class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
+                            Masuk ke Sistem
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </template>
+
+        <!-- DASHBOARD -->
+        <template x-if="user">
+            <div x-data="{ activeTab: 'kas' }" class="w-full h-screen bg-gray-50 flex flex-col overflow-hidden">
+                
+                <!-- 1. TOP NAVIGATION DESKTOP -->
+                <header class="hidden md:block bg-white w-full border-b border-gray-200 z-40 px-8 pt-5 shrink-0">
+                    <div class="flex justify-between items-center mb-6 max-w-7xl mx-auto">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-sm">
+                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                            </div>
+                            <div class="flex flex-col">
+                                <h1 class="font-bold text-xl text-blue-700 leading-tight">BKU Digital</h1>
+                                <p class="text-xs text-gray-500">Aplikasi Bendahara Sekolah</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-3">
+                            <div class="text-sm text-gray-500 flex items-center gap-1">
+                                User: <span class="bg-gray-50 text-gray-600 font-mono px-2 py-1 rounded text-xs border border-gray-100" x-text="user.email"></span>
+                            </div>
+                            <button @click="logout()" class="p-1.5 text-red-500 border border-red-200 bg-red-50 hover:bg-red-100 rounded-lg transition-colors" title="Keluar">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <nav class="flex gap-8 max-w-7xl mx-auto">
+                        <button @click="activeTab = 'home'" :class="activeTab === 'home' ? 'text-blue-600 border-b-2 border-blue-600 font-semibold' : 'text-gray-500 hover:text-gray-700'" class="flex items-center gap-2 pb-3 transition-colors text-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                            Beranda
+                        </button>
+                        <button @click="activeTab = 'kas'" :class="activeTab === 'kas' ? 'text-blue-600 border-b-2 border-blue-600 font-semibold' : 'text-gray-500 hover:text-gray-700'" class="flex items-center gap-2 pb-3 transition-colors text-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                            Buku Kas
+                        </button>
+                        <button @click="activeTab = 'iuran'" :class="activeTab === 'iuran' ? 'text-blue-600 border-b-2 border-blue-600 font-semibold' : 'text-gray-500 hover:text-gray-700'" class="flex items-center gap-2 pb-3 transition-colors text-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                            Data Iuran
+                        </button>
+                        <button @click="activeTab = 'setting'" :class="activeTab === 'setting' ? 'text-blue-600 border-b-2 border-blue-600 font-semibold' : 'text-gray-500 hover:text-gray-700'" class="flex items-center gap-2 pb-3 transition-colors text-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            Pengaturan
+                        </button>
+                    </nav>
+                </header>
+
+                <!-- 1.1 MOBILE TOP NAVIGATION -->
+                <header class="md:hidden w-full bg-white z-40 border-b border-gray-100 px-4 py-3 flex justify-between items-center shadow-sm shrink-0">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-sm shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                        </div>
+                        <div class="flex flex-col">
+                            <h1 class="font-bold text-[16px] text-gray-900 leading-tight">BKU Digital</h1>
+                            <p class="text-[11px] text-gray-500 leading-none mt-0.5">Aplikasi Bendahara Sekolah</p>
+                        </div>
+                    </div>
+                    <button @click="logout()" class="p-1.5 text-red-500 border border-red-200 bg-red-50 hover:bg-red-100 rounded-lg transition-colors shrink-0" title="Keluar">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    </button>
+                </header>
+
+                <!-- 2. MOBILE BOTTOM NAVIGATION -->
+                <nav class="md:hidden fixed bottom-0 w-full bg-white border-t border-gray-200 flex justify-between items-center px-2 pb-3 pt-2 z-50 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)]">
+                    <button @click="activeTab = 'home'" class="flex flex-col items-center gap-1 w-1/5" :class="activeTab === 'home' ? 'text-blue-600' : 'text-gray-400'">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                        <span class="text-[10px] font-medium">Home</span>
+                    </button>
+                    
+                    <button @click="activeTab = 'kas'" class="flex flex-col items-center gap-1 w-1/5" :class="activeTab === 'kas' ? 'text-blue-600' : 'text-gray-400'">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                        <span class="text-[10px] font-medium">Kas</span>
+                    </button>
+
+                    <div class="relative w-1/5 flex justify-center">
+                        <button @click="activeTab = 'kas'; $dispatch('open-add-modal')" 
+                            class="absolute -top-7 bg-blue-600 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-[0_4px_16px_rgba(37,99,235,0.5)] hover:bg-blue-700 active:scale-95 transition-all duration-200 z-50">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                        </button>
+                    </div>
+
+                    <button @click="activeTab = 'iuran'" class="flex flex-col items-center gap-1 w-1/5" :class="activeTab === 'iuran' ? 'text-blue-600' : 'text-gray-400'">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        <span class="text-[10px] font-medium">Iuran</span>
+                    </button>
+
+                    <button @click="activeTab = 'setting'" class="flex flex-col items-center gap-1 w-1/5" :class="activeTab === 'setting' ? 'text-blue-600' : 'text-gray-400'">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        <span class="text-[10px] font-medium">Setting</span>
+                    </button>
+                </nav>
+
+                <!-- 3. MAIN CONTENT AREA -->
+                <main class="flex-1 w-full p-4 md:p-8 pb-28 md:pb-8 max-w-7xl mx-auto overflow-y-auto">
+                    
+                    <!-- TAB: HOME -->
+                    <template x-if="activeTab === 'home'">
+                        <div x-transition.opacity class="p-4 md:p-8">
+                            <h2 class="text-2xl font-bold text-gray-800 mb-6">Dashboard Ringkasan</h2>
+                            <div class="bg-blue-50 border border-blue-100 rounded-2xl p-6 shadow-sm text-center">
+                                <h3 class="text-lg font-medium text-blue-800">Selamat datang di BKU Digital</h3>
+                                <p class="text-sm text-blue-600 mt-2">Pilih tab "Buku Kas" untuk mulai mencatat transaksi.</p>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- TAB: KAS (Pemasukan & Pengeluaran) -->
+                    <template x-if="activeTab === 'kas'">
+                        <div x-data="bkuApp" @open-add-modal.window="openAddModal()" x-transition.opacity class="h-full">
+                            
+                            <!-- MODAL KONFIRMASI HAPUS (Modern Confirm) -->
+                            <div x-show="confirmModal.open" class="fixed inset-0 z-[100] flex items-center justify-center px-4" style="display: none;">
+                                <div class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm" @click="confirmModal.open = false"></div>
+                                <div class="bg-white rounded-2xl p-6 shadow-xl z-10 max-w-sm w-full transform transition-all">
+                                    <div class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                    </div>
+                                    <h3 class="text-lg font-bold text-center text-gray-900 mb-2">Hapus Transaksi?</h3>
+                                    <p class="text-sm text-gray-500 text-center mb-6">Data yang dihapus tidak dapat dikembalikan. Apakah Anda yakin?</p>
+                                    <div class="flex gap-3">
+                                        <button @click="confirmModal.open = false" class="flex-1 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition">Batal</button>
+                                        <button @click="executeDelete()" class="flex-1 py-2.5 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition flex justify-center items-center gap-2" :disabled="isSubmitting">
+                                            <span x-show="isSubmitting" class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+                                            <span>Ya, Hapus</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+                                
+                                <!-- FORM INPUT MODAL/KOLOM -->
+                                <div x-show="isTransactionModalOpen" 
+                                     x-transition.opacity 
+                                     class="md:hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[60]"
+                                     @click="isTransactionModalOpen = false"></div>
+
+                                <div :class="isTransactionModalOpen ? 'translate-y-0 shadow-[0_-20px_50px_-10px_rgba(0,0,0,0.2)]' : 'translate-y-full md:translate-y-0'"
+                                     class="fixed inset-x-0 bottom-0 z-[70] md:z-auto bg-white p-6 pb-10 md:pb-6 rounded-t-[32px] md:rounded-2xl md:shadow-sm border-t md:border border-gray-100 transition-transform duration-300 ease-out md:block lg:col-span-1 md:static max-h-[90vh] overflow-y-auto">
+                                    
+                                    <div class="md:hidden w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-5 cursor-pointer" @click="isTransactionModalOpen = false"></div>
+                                    
+                                    <div class="flex justify-between items-center mb-4">
+                                        <h2 class="text-lg font-bold text-gray-800" x-text="editId ? 'Edit Transaksi' : 'Catat Transaksi'"></h2>
+                                        <button type="button" @click="isTransactionModalOpen = false" class="md:hidden p-2 text-gray-400 hover:text-gray-700 bg-gray-50 rounded-full active:scale-95 transition">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        </button>
+                                    </div>
+                                    
+                                    <div x-show="message.text" x-transition 
+                                        :class="message.type === 'success' ? 'bg-green-100 text-green-700 border-green-400' : 'bg-red-100 text-red-700 border-red-400'"
+                                        class="mb-4 p-3 border text-sm rounded-lg" style="display: none;" x-text="message.text">
+                                    </div>
+
+                                    <form @submit.prevent="submitTransaction()">
+                                        <div class="mb-4 flex gap-4 p-1 bg-gray-100 rounded-lg">
+                                            <label class="flex-1 text-center cursor-pointer">
+                                                <input type="radio" x-model="form.type" value="income" class="peer sr-only">
+                                                <div class="py-2 rounded-md text-sm font-medium transition-all peer-checked:bg-white peer-checked:text-green-600 peer-checked:shadow-sm text-gray-500">Pemasukan</div>
+                                            </label>
+                                            <label class="flex-1 text-center cursor-pointer">
+                                                <input type="radio" x-model="form.type" value="expense" class="peer sr-only">
+                                                <div class="py-2 rounded-md text-sm font-medium transition-all peer-checked:bg-white peer-checked:text-red-600 peer-checked:shadow-sm text-gray-500">Pengeluaran</div>
+                                            </label>
+                                        </div>
+
+                                        <div class="space-y-4">
+                                            <div>
+                                                <label class="block text-xs font-semibold mb-1 text-gray-500 uppercase">Tanggal</label>
+                                                <input type="date" x-model="form.date" required class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none text-sm transition-all">
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-xs font-semibold mb-1 text-gray-500 uppercase">Kategori</label>
+                                                <select x-model="form.category" required class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none text-sm transition-all">
+                                                    <option value="" disabled>Pilih Kategori...</option>
+                                                    <option value="Iuran Bulanan">Iuran Bulanan</option>
+                                                    <option value="Dana BOS">Dana BOS</option>
+                                                    <option value="Operasional">Operasional Harian</option>
+                                                    <option value="Honor">Honorarium</option>
+                                                    <option value="Lainnya">Lain-lain</option>
+                                                </select>
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-xs font-semibold mb-1 text-gray-500 uppercase">Uraian / Keterangan</label>
+                                                <textarea x-model="form.description" required rows="2" placeholder="Contoh: Beli alat tulis kantor" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none text-sm transition-all"></textarea>
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-xs font-semibold mb-1 text-gray-500 uppercase">Jumlah (Rp)</label>
+                                                <input type="number" id="jumlahInput" x-model="form.amount" required min="1" placeholder="50000" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none text-lg font-semibold transition-all">
+                                            </div>
+                                        </div>
+
+                                        <button type="submit" :disabled="isSubmitting" class="w-full mt-6 bg-blue-600 text-white py-3 md:py-3 py-4 rounded-xl font-bold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2">
+                                            <span x-show="isSubmitting" class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
+                                            <span x-text="isSubmitting ? 'Menyimpan...' : 'Simpan Transaksi'"></span>
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <!-- AREA RIWAYAT BKU (TAMPILAN DAFTAR TRANSAKSI) -->
+                                <div class="lg:col-span-2 flex-1 pb-4 md:pb-0 h-full">
+                                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full max-h-[85vh] md:max-h-full overflow-hidden">
+                                        
+                                        <!-- Header Daftar Transaksi & Filter Bulan -->
+                                        <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10 shrink-0">
+                                            <h3 class="font-bold text-gray-800 text-lg">Riwayat BKU</h3>
+                                            <div class="relative">
+                                                <input type="month" x-model="selectedMonth" @change="fetchTransactions()" 
+                                                    class="px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer font-medium">
+                                            </div>
+                                        </div>
+
+                                        <!-- Konten Daftar Transaksi -->
+                                        <div class="flex-1 overflow-y-auto bg-gray-50/30">
+                                            <!-- Loader saat menarik data -->
+                                            <div x-show="isLoadingData" class="flex justify-center items-center p-10">
+                                                <div class="animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
+                                            </div>
+
+                                            <!-- State Kosong -->
+                                            <template x-if="!isLoadingData && transactions.length === 0">
+                                                <div class="flex flex-col items-center justify-center p-12 text-gray-400 h-full">
+                                                    <svg class="w-16 h-16 mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                                                    <p class="font-medium text-gray-500">Tidak ada transaksi bulan ini</p>
+                                                    <p class="text-sm mt-1">Silakan input melalui form Catat Transaksi</p>
+                                                </div>
+                                            </template>
+
+                                            <!-- Tampilan List Transaksi (Kompak/Tabel) -->
+                                            <template x-if="!isLoadingData && transactions.length > 0">
+                                                <div class="w-full overflow-x-auto bg-white">
+                                                    <table class="w-full text-left border-collapse">
+                                                        <thead class="bg-gray-100/80 sticky top-0 z-10">
+                                                            <tr class="text-[10px] md:text-xs text-gray-500 uppercase tracking-wider border-y border-gray-200">
+                                                                <th class="px-3 py-2 font-semibold w-12 md:w-16">Tgl</th>
+                                                                <th class="px-2 py-2 font-semibold">Uraian</th>
+                                                                <th class="px-3 py-2 font-semibold text-right">Nominal</th>
+                                                                <th class="px-2 py-2 font-semibold text-center w-16">Aksi</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="divide-y divide-gray-100">
+                                                            <template x-for="(trx, index) in transactions" :key="trx.id">
+                                                                <tr class="hover:bg-gray-50/80 transition-colors">
+                                                                    <!-- Kolom Tanggal (Format DD/MM) -->
+                                                                    <td class="px-3 py-2.5 align-top">
+                                                                        <div class="text-[11px] md:text-xs font-semibold text-gray-500" x-text="trx.date.substring(8, 10) + '/' + trx.date.substring(5, 7)"></div>
+                                                                    </td>
+                                                                    <!-- Kolom Uraian & Kategori -->
+                                                                    <td class="px-2 py-2.5 align-top">
+                                                                        <div class="text-xs md:text-sm font-bold text-gray-800 leading-tight break-words" x-text="trx.description"></div>
+                                                                        <div class="text-[9px] md:text-[10px] text-gray-400 font-semibold uppercase mt-0.5" x-text="trx.category"></div>
+                                                                    </td>
+                                                                    <!-- Kolom Nominal -->
+                                                                    <td class="px-3 py-2.5 align-top text-right whitespace-nowrap">
+                                                                        <div class="text-xs md:text-sm font-extrabold" :class="trx.type === 'income' ? 'text-green-600' : 'text-red-600'">
+                                                                            <span x-text="trx.type === 'income' ? '+' : '-'"></span>
+                                                                            <span x-text="formatRupiah(trx.amount)"></span>
+                                                                        </div>
+                                                                    </td>
+                                                                    <!-- Kolom Aksi -->
+                                                                    <td class="px-2 py-2.5 align-top text-center whitespace-nowrap">
+                                                                        <div class="flex items-center justify-center gap-1.5 md:gap-2">
+                                                                            <button @click="editTransaction(trx)" class="text-blue-500 hover:text-blue-700 bg-blue-50 p-1.5 md:p-2 rounded-md transition active:scale-95" title="Edit">
+                                                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                                                            </button>
+                                                                            <button @click="confirmDelete(trx.id)" class="text-red-500 hover:text-red-700 bg-red-50 p-1.5 md:p-2 rounded-md transition active:scale-95" title="Hapus">
+                                                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                                            </button>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            </template>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </template>
+                                        </div>
+
+                                        <!-- Footer/Ringkasan Bawah (Kompak) -->
+                                        <div class="p-3 md:p-4 bg-gray-50 border-t border-gray-200 shrink-0">
+                                            <div class="flex justify-between items-center mb-1">
+                                                <span class="text-[11px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Pemasukan</span>
+                                                <span class="text-xs md:text-sm font-extrabold text-green-600" x-text="'+ ' + formatRupiah(totalIncome)"></span>
+                                            </div>
+                                            <div class="flex justify-between items-center mb-1.5">
+                                                <span class="text-[11px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Pengeluaran</span>
+                                                <span class="text-xs md:text-sm font-extrabold text-red-600" x-text="'- ' + formatRupiah(totalExpense)"></span>
+                                            </div>
+                                            <div class="h-px w-full bg-gray-200 my-1.5 md:my-2"></div>
+                                            <div class="flex justify-between items-center">
+                                                <span class="text-xs md:text-sm font-bold text-gray-800">Sisa Kas</span>
+                                                <span class="text-sm md:text-lg font-black text-blue-700" x-text="formatRupiah(totalIncome - totalExpense)"></span>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- TAB: IURAN & SETTING (Tetap sama) -->
+                    <template x-if="activeTab === 'iuran'">
+                        <div x-transition.opacity class="p-4 md:p-8"><div class="bg-white p-8 rounded-2xl shadow-sm text-center"><h3 class="text-gray-600">Modul Iuran Sekolah dalam pengembangan.</h3></div></div>
+                    </template>
+                    <template x-if="activeTab === 'setting'">
+                        <div x-transition.opacity class="p-4 md:p-8 md:hidden"><button @click="logout()" class="w-full bg-red-50 text-red-600 font-bold py-3 rounded-xl border border-red-100">Keluar (Logout)</button></div>
+                    </template>
+                </main>
+            </div>
+        </template>
+    </div>
+
+    <script type="module">
+        import Alpine from "https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/module.esm.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, query, where, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCsgM8CK9-_WhFuQr-xe7FkL_kB6qRR2RQ",
+            authDomain: "bendahara-kkgo.firebaseapp.com",
+            projectId: "bendahara-kkgo",
+            storageBucket: "bendahara-kkgo.firebasestorage.app",
+            messagingSenderId: "847848326395",
+            appId: "1:847848326395:web:afe250017943fa03b1dc5e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // =====================================================================
+        // SERVICE LAYER DATABASE
+        // =====================================================================
+        const FinanceService = {
+            async addTransaction(data, userUid) {
+                if (data.amount <= 0) throw new Error("Jumlah harus lebih dari 0");
+                if (!data.date) throw new Error("Tanggal harus diisi");
+                
+                const monthString = data.date.substring(0, 7);
+                const payload = {
+                    type: data.type,
+                    amount: Number(data.amount),
+                    category: data.category,
+                    description: data.description,
+                    date: data.date, 
+                    month: monthString, 
+                    source: 'manual',
+                    closed: false,
+                    createdAt: serverTimestamp(),
+                    createdBy: userUid
+                };
+                return await addDoc(collection(db, "transactions"), payload);
+            },
+
+            async updateTransaction(id, data) {
+                if (data.amount <= 0) throw new Error("Jumlah harus lebih dari 0");
+                const monthString = data.date.substring(0, 7);
+                const payload = {
+                    type: data.type,
+                    amount: Number(data.amount),
+                    category: data.category,
+                    description: data.description,
+                    date: data.date, 
+                    month: monthString
+                };
+                return await updateDoc(doc(db, "transactions", id), payload);
+            },
+
+            async deleteTransaction(id) {
+                return await deleteDoc(doc(db, "transactions", id));
+            },
+
+            // Fungsi untuk menarik data Realtime berdasarkan bulan
+            listenTransactions(monthString, callback) {
+                const q = query(collection(db, "transactions"), where("month", "==", monthString));
+                
+                return onSnapshot(q, (snapshot) => {
+                    const data = [];
+                    snapshot.forEach((doc) => {
+                        data.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    try {
+                        // Sorting: Terbaru di atas, Terlama di bawah (Aman dari data kosong/null)
+                        data.sort((a, b) => {
+                            const dateA = a.date ? new Date(a.date).getTime() : 0;
+                            const dateB = b.date ? new Date(b.date).getTime() : 0;
+                            
+                            if (dateA !== dateB) {
+                                return dateB - dateA; // Urutkan tanggal (Descending)
+                            } else {
+                                // Jika tanggal sama persis, urutkan jam inputnya (Descending)
+                                const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+                                const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+                                return timeB - timeA; 
+                            }
+                        });
+                    } catch (e) {
+                        console.error("Sorting Error:", e);
+                    }
+                    
+                    callback(data, null); // Kirim data sukses tanpa error
+                }, (error) => {
+                    console.error("Firebase Read Error:", error);
+                    callback([], error); // Lempar error ke UI agar loading berhenti
+                });
+            }
+        };
+
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('authApp', () => ({
+                user: null, loading: true, errorMessage: '', formData: { email: 'windusapto5@gmail.com', password: '' }, isTransactionModalOpen: false,
+                init() { onAuthStateChanged(auth, (user) => { this.user = user; this.loading = false; }); },
+                async login() {
+                    this.loading = true; this.errorMessage = '';
+                    try { await signInWithEmailAndPassword(auth, this.formData.email, this.formData.password); this.formData = { email: '', password: '' }; } 
+                    catch (error) { this.errorMessage = "Login gagal. Periksa kembali kredensial Anda."; } 
+                    finally { this.loading = false; }
+                },
+                async logout() { this.loading = true; try { await signOut(auth); } finally { this.loading = false; } }
+            }));
+
+            // =====================================================================
+            // LOGIKA KOMPONEN BKU KAS
+            // =====================================================================
+            Alpine.data('bkuApp', () => ({
+                isSubmitting: false,
+                isLoadingData: true,
+                message: { text: '', type: '' },
+                transactions: [], // Tempat menampung data array dari Firestore
+                unsubscribe: null, // Penyimpan fungsi stop listening database
+                editId: null, // Track ID transaksi yang sedang di-edit
+                confirmModal: { open: false, id: null }, // State untuk modal konfirmasi hapus
+                
+                // Set default bulan saat ini "YYYY-MM" dengan aman menghindari timezone bug
+                selectedMonth: (() => {
+                    const d = new Date();
+                    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                })(),
+
+                form: {
+                    type: 'income',
+                    date: new Date().toISOString().split('T')[0],
+                    category: '',
+                    description: '',
+                    amount: ''
+                },
+
+                // FUNGSI INI SEBELUMNYA TERHAPUS: Pemicu awal saat Tab Kas dibuka
+                init() {
+                    this.fetchTransactions();
+                },
+
+                // Reset form saat tombol plus ditekan
+                openAddModal() {
+                    this.editId = null;
+                    this.form = { type: 'income', date: new Date().toISOString().split('T')[0], category: '', description: '', amount: '' };
+                    this.isTransactionModalOpen = true;
+                },
+
+                // Menarik data / Listen realtime dari service layer
+                fetchTransactions() {
+                    this.isLoadingData = true;
+                    // Hentikan listener bulan sebelumnya jika ada
+                    if (this.unsubscribe) this.unsubscribe();
+                    
+                    this.unsubscribe = FinanceService.listenTransactions(this.selectedMonth, (data, error) => {
+                        if (error) {
+                            this.showMessage("Gagal memuat data. Cek Rules Firebase Anda.", "error");
+                        }
+                        this.transactions = data;
+                        this.isLoadingData = false;
+                    });
+                },
+
+                // Utility: Format Angka ke Rupiah (Rp 1.500.000)
+                formatRupiah(angka) {
+                    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+                },
+
+                // Getter untuk menghitung total otomatis (Aman jika ada nilai nominal yg rusak di database)
+                get totalIncome() {
+                    return this.transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+                },
+                get totalExpense() {
+                    return this.transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+                },
+
+                showMessage(text, type = 'success') {
+                    this.message = { text, type };
+                    setTimeout(() => { this.message.text = ''; }, 4000);
+                },
+
+                // Fungsi mengisi form dengan data yang dipilih
+                editTransaction(trx) {
+                    this.editId = trx.id;
+                    this.form = {
+                        type: trx.type,
+                        date: trx.date,
+                        category: trx.category,
+                        description: trx.description,
+                        amount: trx.amount
+                    };
+                    this.isTransactionModalOpen = true;
+                },
+
+                // Fungsi pemicu modal konfirmasi hapus
+                confirmDelete(id) {
+                    this.confirmModal.id = id;
+                    this.confirmModal.open = true;
+                },
+
+                // Eksekusi penghapusan setelah dikonfirmasi
+                async executeDelete() {
+                    this.isSubmitting = true;
+                    try {
+                        await FinanceService.deleteTransaction(this.confirmModal.id);
+                        this.showMessage('Transaksi berhasil dihapus!');
+                    } catch (error) {
+                        this.showMessage(error.message, 'error');
+                    } finally {
+                        this.confirmModal.open = false;
+                        this.confirmModal.id = null;
+                        this.isSubmitting = false;
+                    }
+                },
+
+                async submitTransaction() {
+                    this.isSubmitting = true;
+                    this.message.text = '';
+                    try {
+                        const currentUser = auth.currentUser;
+                        if (!currentUser) throw new Error("Akses ditolak, silakan login.");
+
+                        if (this.editId) {
+                            // Update jika mode Edit
+                            await FinanceService.updateTransaction(this.editId, this.form);
+                            this.showMessage('Transaksi berhasil diperbarui!');
+                        } else {
+                            // Tambah Baru
+                            await FinanceService.addTransaction(this.form, currentUser.uid);
+                            this.showMessage('Transaksi berhasil disimpan!');
+                        }
+                        
+                        this.isTransactionModalOpen = false;
+                        this.editId = null; // Reset edit status
+                        
+                        this.form.category = '';
+                        this.form.description = '';
+                        this.form.amount = '';
+                        
+                        // Opsional: Jika transaksi yang diinput beda bulan dengan yg sedang dilihat, otomatis ganti bulan view
+                        if(this.form.date.substring(0,7) !== this.selectedMonth) {
+                            this.selectedMonth = this.form.date.substring(0,7);
+                            this.fetchTransactions();
+                        }
+                    } catch (error) {
+                        this.showMessage(error.message, 'error');
+                    } finally {
+                        this.isSubmitting = false;
+                    }
+                }
+            }));
+        });
+
+        window.Alpine = Alpine;
+        Alpine.start();
+    </script>
+</body>
+</html>
