@@ -5,6 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bendahara App | Modern System</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Standar CSS Khusus untuk Mode Cetak (Print) */
+        @media print {
+            body { background-color: white !important; }
+            /* Menyembunyikan elemen UI yang tidak perlu di kertas laporan */
+            .no-print, header, nav, .md\\:hidden.fixed.bottom-0 { 
+                display: none !important; 
+            }
+            /* Menyesuaikan area utama agar full di kertas */
+            main { 
+                padding: 0 !important; 
+                margin: 0 !important; 
+                overflow: visible !important; 
+                max-width: 100% !important;
+            }
+            /* Memaksa warna text/background Tailwind (seperti merah/hijau kas) tetap tercetak */
+            * { 
+                -webkit-print-color-adjust: exact !important; 
+                print-color-adjust: exact !important; 
+            }
+            /* Mengubah struktur layout dari scrollable menjadi statis untuk print */
+            .overflow-y-auto { overflow: visible !important; max-height: none !important; }
+        }
+    </style>
 </head>
 <body class="bg-gray-50 text-gray-900">
 
@@ -50,7 +74,7 @@
             <div x-data="{ activeTab: 'kas' }" class="w-full h-screen bg-gray-50 flex flex-col overflow-hidden">
                 
                 <!-- 1. TOP NAVIGATION DESKTOP -->
-                <header class="hidden md:block bg-white w-full border-b border-gray-200 z-40 px-8 pt-5 shrink-0">
+                <header class="no-print hidden md:block bg-white w-full border-b border-gray-200 z-40 px-8 pt-5 shrink-0">
                     <div class="flex justify-between items-center mb-6 max-w-7xl mx-auto">
                         <div class="flex items-center gap-4">
                             <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-sm">
@@ -93,7 +117,7 @@
                 </header>
 
                 <!-- 1.1 MOBILE TOP NAVIGATION -->
-                <header class="md:hidden w-full bg-white z-40 border-b border-gray-100 px-4 py-3 flex justify-between items-center shadow-sm shrink-0">
+                <header class="no-print md:hidden w-full bg-white z-40 border-b border-gray-100 px-4 py-3 flex justify-between items-center shadow-sm shrink-0">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-sm shrink-0">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
@@ -109,7 +133,7 @@
                 </header>
 
                 <!-- 2. MOBILE BOTTOM NAVIGATION -->
-                <nav class="md:hidden fixed bottom-0 w-full bg-white border-t border-gray-200 flex justify-between items-center px-2 pb-3 pt-2 z-50 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)]">
+                <nav class="no-print md:hidden fixed bottom-0 w-full bg-white border-t border-gray-200 flex justify-between items-center px-2 pb-3 pt-2 z-50 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)]">
                     <button @click="activeTab = 'home'" class="flex flex-col items-center gap-1 w-1/5" :class="activeTab === 'home' ? 'text-blue-600' : 'text-gray-400'">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                         <span class="text-[10px] font-medium">Home</span>
@@ -154,11 +178,10 @@
 
                     <!-- TAB: KAS (Pemasukan & Pengeluaran) -->
                     <template x-if="activeTab === 'kas'">
-                        <!-- Perbaikan Layout: Dihapus h-full agar bisa di-scroll secara alami -->
                         <div x-data="bkuApp" @open-add-modal.window="openAddModal()" x-transition.opacity>
                             
                             <!-- MODAL KONFIRMASI HAPUS (Modern Confirm) -->
-                            <div x-show="confirmModal.open" class="fixed inset-0 z-[100] flex items-center justify-center px-4" style="display: none;">
+                            <div x-show="confirmModal.open" class="no-print fixed inset-0 z-[100] flex items-center justify-center px-4" style="display: none;">
                                 <div class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm" @click="confirmModal.open = false"></div>
                                 <div class="bg-white rounded-2xl p-6 shadow-xl z-10 max-w-sm w-full transform transition-all">
                                     <div class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4">
@@ -176,17 +199,16 @@
                                 </div>
                             </div>
 
-                            <!-- Perbaikan Layout: pb-24 ditambahkan agar sisa kas bebas dari tumpukan menu bawah -->
                             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 pb-24 md:pb-0">
                                 
                                 <!-- FORM INPUT MODAL/KOLOM -->
                                 <div x-show="isTransactionModalOpen" 
                                      x-transition.opacity 
-                                     class="md:hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[60]"
+                                     class="no-print md:hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[60]"
                                      @click="isTransactionModalOpen = false"></div>
 
                                 <div :class="isTransactionModalOpen ? 'translate-y-0 shadow-[0_-20px_50px_-10px_rgba(0,0,0,0.2)]' : 'translate-y-full md:translate-y-0'"
-                                     class="fixed inset-x-0 bottom-0 z-[70] md:z-auto bg-white p-6 pb-10 md:pb-6 rounded-t-[32px] md:rounded-2xl md:shadow-sm border-t md:border border-gray-100 transition-transform duration-300 ease-out md:block lg:col-span-1 md:static max-h-[90vh] overflow-y-auto">
+                                     class="no-print fixed inset-x-0 bottom-0 z-[70] md:z-auto bg-white p-6 pb-10 md:pb-6 rounded-t-[32px] md:rounded-2xl md:shadow-sm border-t md:border border-gray-100 transition-transform duration-300 ease-out md:block lg:col-span-1 md:static max-h-[90vh] overflow-y-auto">
                                     
                                     <div class="md:hidden w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-5 cursor-pointer" @click="isTransactionModalOpen = false"></div>
                                     
@@ -252,55 +274,114 @@
 
                                 <!-- AREA RIWAYAT BKU (TAMPILAN DAFTAR TRANSAKSI) -->
                                 <div class="lg:col-span-2 flex-1">
-                                    <!-- Perbaikan Layout: overflow-hidden & h-full dihapus -->
-                                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col relative">
+                                    
+                                    <!-- FORMAT CETAK BKU STANDAR (HANYA TAMPIL SAAT PRINT) -->
+                                    <div class="hidden print:block w-full bg-white pb-10">
+                                        <div class="text-center mb-6">
+                                            <h2 class="text-2xl font-bold text-black uppercase tracking-wide underline decoration-2 underline-offset-4">Laporan Buku Kas Umum (BKU)</h2>
+                                            <p class="text-black font-semibold mt-2 text-lg" x-text="'Periode Bulan: ' + selectedMonth"></p>
+                                        </div>
                                         
-                                        <!-- Header Daftar Transaksi & Filter Bulan -->
-                                        <div class="sticky -top-4 md:-top-8 pt-4 md:pt-8 h-20 md:h-[104px] px-4 md:px-5 border-b border-gray-100 flex justify-between items-center bg-white/95 backdrop-blur-md rounded-t-2xl z-30 shrink-0 shadow-sm">
+                                        <table class="w-full border-collapse border border-black text-black">
+                                            <thead>
+                                                <tr class="bg-gray-100 text-sm uppercase">
+                                                    <th class="border border-black p-2 text-center w-12">No</th>
+                                                    <th class="border border-black p-2 text-center w-28">Tgl</th>
+                                                    <th class="border border-black p-2 text-center">Uraian</th>
+                                                    <th class="border border-black p-2 text-center w-32">Pemasukan</th>
+                                                    <th class="border border-black p-2 text-center w-32">Pengeluaran</th>
+                                                    <th class="border border-black p-2 text-center w-36">Saldo</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="text-sm">
+                                                <!-- Loop data yang sudah dikalkulasi saldonya -->
+                                                <template x-for="(trx, index) in processedTransactions" :key="trx.id">
+                                                    <tr>
+                                                        <td class="border border-black p-2 text-center" x-text="index + 1"></td>
+                                                        <td class="border border-black p-2 text-center" x-text="trx.date.substring(8, 10) + '/' + trx.date.substring(5, 7) + '/' + trx.date.substring(0, 4)"></td>
+                                                        <td class="border border-black p-2" x-text="trx.description"></td>
+                                                        <td class="border border-black p-2 text-right" x-text="trx.type === 'income' ? formatRupiah(trx.amount) : '-'"></td>
+                                                        <td class="border border-black p-2 text-right" x-text="trx.type === 'expense' ? formatRupiah(trx.amount) : '-'"></td>
+                                                        <td class="border border-black p-2 text-right font-bold" x-text="formatRupiah(trx.saldo)"></td>
+                                                    </tr>
+                                                </template>
+                                                <!-- Jika data kosong -->
+                                                <template x-if="processedTransactions.length === 0">
+                                                    <tr>
+                                                        <td colspan="6" class="border border-black p-4 text-center italic text-gray-500">Tidak ada transaksi pada bulan ini.</td>
+                                                    </tr>
+                                                </template>
+                                            </tbody>
+                                            <tfoot class="text-sm font-bold bg-gray-100 text-black">
+                                                <tr>
+                                                    <td colspan="3" class="border border-black p-2 text-right uppercase">Total Kas Bulan Ini</td>
+                                                    <td class="border border-black p-2 text-right text-green-800" x-text="formatRupiah(totalIncome)"></td>
+                                                    <td class="border border-black p-2 text-right text-red-800" x-text="formatRupiah(totalExpense)"></td>
+                                                    <td class="border border-black p-2 text-right text-blue-800" x-text="formatRupiah(totalIncome - totalExpense)"></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+
+                                    <!-- TAMPILAN LAYAR APLIKASI (DISEMBUNYIKAN SAAT PRINT) -->
+                                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col relative print:hidden">
+                                        
+                                        <!-- Header Daftar Transaksi & Filter Bulan + ICON CETAK -->
+                                        <!-- print:hidden agar header filter ini hilang saat di print -->
+                                        <div class="sticky -top-4 md:-top-8 pt-4 md:pt-8 h-14 md:h-[88px] px-4 md:px-5 border-b border-gray-100 flex justify-between items-center bg-white/95 backdrop-blur-md rounded-t-2xl z-30 shrink-0 shadow-sm print:hidden">
                                             <h3 class="font-bold text-gray-800 text-base md:text-lg">Riwayat BKU</h3>
-                                            <div class="relative">
+                                            
+                                            <!-- Wrapper Flex Untuk Filter & Tombol Cetak -->
+                                            <div class="flex items-center gap-2">
                                                 <input type="month" x-model="selectedMonth" @change="fetchTransactions()" 
-                                                    class="px-3 py-1.5 text-xs md:text-sm border border-gray-200 rounded-lg bg-gray-50 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer font-medium">
+                                                    class="px-2 py-1 md:px-3 md:py-1.5 text-xs md:text-sm border border-gray-200 rounded-lg bg-gray-50 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer font-medium">
+                                                
+                                                <!-- TOMBOL CETAK LAPORAN -->
+                                                <button @click="window.print()" class="p-1 md:p-2 text-blue-600 border border-blue-200 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors active:scale-95" title="Cetak Laporan">
+                                                    <!-- Icon Print SVG -->
+                                                    <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                                </button>
                                             </div>
                                         </div>
 
                                         <!-- Konten Daftar Transaksi -->
                                         <div class="bg-gray-50/30 pb-2">
                                             <!-- Loader saat menarik data -->
-                                            <div x-show="isLoadingData" class="flex justify-center items-center p-10">
+                                            <div x-show="isLoadingData" class="flex justify-center items-center p-10 no-print">
                                                 <div class="animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
                                             </div>
 
                                             <!-- State Kosong -->
                                             <template x-if="!isLoadingData && transactions.length === 0">
-                                                <div class="flex flex-col items-center justify-center p-12 text-gray-400">
+                                                <div class="flex flex-col items-center justify-center p-12 text-gray-400 no-print">
                                                     <svg class="w-16 h-16 mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                                                     <p class="font-medium text-gray-500 text-sm md:text-base">Tidak ada transaksi bulan ini</p>
                                                     <p class="text-xs md:text-sm mt-1">Silakan input melalui form Catat Transaksi</p>
                                                 </div>
                                             </template>
 
-                                            <!-- Tampilan List Transaksi (Kompak/Tabel + Nomor) -->
+                                            <!-- Tampilan List Transaksi (Kompak/Tabel + Nomor) STRUKTUR ASLI -->
                                             <template x-if="!isLoadingData && transactions.length > 0">
                                                 <div class="w-full">
                                                     <table class="w-full text-left border-collapse">
-                                                        <thead class="sticky top-16 md:top-[72px] z-20 bg-gray-100/95 backdrop-blur-md shadow-sm">
+                                                        <thead class="sticky top-10 md:top-14 z-20 bg-gray-100/95 backdrop-blur-md shadow-sm">
                                                             <tr class="text-[9px] md:text-[11px] text-gray-500 uppercase tracking-wider border-y border-gray-200">
                                                                 <th class="px-2 py-2 font-semibold text-center w-8">No</th>
                                                                 <th class="px-2 py-2 font-semibold w-12 md:w-16">Tgl</th>
                                                                 <th class="px-2 py-2 font-semibold">Uraian</th>
                                                                 <th class="px-2 py-2 font-semibold text-right">Nominal</th>
-                                                                <th class="px-2 py-2 font-semibold text-center w-14">Aksi</th>
+                                                                <!-- Tambahkan no-print agar header Aksi hilang saat dicetak -->
+                                                                <th class="px-2 py-2 font-semibold text-center w-14 no-print">Aksi</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody class="divide-y divide-gray-100 bg-white">
                                                             <template x-for="(trx, index) in transactions" :key="trx.id">
                                                                 <tr class="hover:bg-gray-50/80 transition-colors">
-                                                                    <!-- Kolom No (Dibalik: Terbaru = Terbesar, Lama = 1) -->
+                                                                    <!-- Kolom No -->
                                                                     <td class="px-1 py-2 align-top text-center">
-                                                                        <div class="text-[10px] md:text-[11px] font-semibold text-gray-500 mt-1" x-text="transactions.length - index"></div>
+                                                                        <div class="text-[10px] md:text-[11px] font-semibold text-gray-500 mt-1" x-text="index + 1"></div>
                                                                     </td>
-                                                                    <!-- Kolom Tanggal (Format DD/MM) -->
+                                                                    <!-- Kolom Tanggal -->
                                                                     <td class="px-2 py-2 align-top">
                                                                         <div class="text-[10px] md:text-[11px] font-semibold text-gray-500 mt-1" x-text="trx.date.substring(8, 10) + '/' + trx.date.substring(5, 7)"></div>
                                                                     </td>
@@ -316,8 +397,8 @@
                                                                             <span x-text="formatRupiah(trx.amount)"></span>
                                                                         </div>
                                                                     </td>
-                                                                    <!-- Kolom Aksi -->
-                                                                    <td class="px-2 py-2 align-top text-center whitespace-nowrap">
+                                                                    <!-- Kolom Aksi -> ditambahkan no-print agar tombol edit/hapus hilang di kertas -->
+                                                                    <td class="px-2 py-2 align-top text-center whitespace-nowrap no-print">
                                                                         <div class="flex items-center justify-center gap-1.5 mt-0.5">
                                                                             <button @click="editTransaction(trx)" class="text-blue-500 hover:text-blue-700 bg-blue-50 p-1 md:p-1.5 rounded transition active:scale-95" title="Edit">
                                                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
@@ -335,8 +416,7 @@
                                             </template>
                                         </div>
 
-                                        <!-- Footer/Ringkasan Bawah (Tidak lagi sticky) -->
-                                        <!-- Perbaikan Layout: Dibuat normal di bawah tabel agar bisa di-scroll utuh -->
+                                        <!-- Footer/Ringkasan Bawah -->
                                         <div class="p-3 md:p-4 bg-white border-t border-gray-200 shrink-0 rounded-b-2xl">
                                             <div class="flex justify-between items-center mb-1">
                                                 <span class="text-[10px] md:text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Total Pemasukan</span>
@@ -443,28 +523,27 @@
                     });
                     
                     try {
-                        // Sorting: Terbaru di atas, Terlama di bawah (Aman dari data kosong/null)
+                        // Sorting: Terlama di atas (No 1), Terbaru di bawah (Ascending)
                         data.sort((a, b) => {
                             const dateA = a.date ? new Date(a.date).getTime() : 0;
                             const dateB = b.date ? new Date(b.date).getTime() : 0;
                             
                             if (dateA !== dateB) {
-                                return dateB - dateA; // Urutkan tanggal (Descending)
+                                return dateA - dateB; 
                             } else {
-                                // Jika tanggal sama persis, urutkan jam inputnya (Descending)
                                 const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
                                 const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
-                                return timeB - timeA; 
+                                return timeA - timeB; 
                             }
                         });
                     } catch (e) {
                         console.error("Sorting Error:", e);
                     }
                     
-                    callback(data, null); // Kirim data sukses tanpa error
+                    callback(data, null); 
                 }, (error) => {
                     console.error("Firebase Read Error:", error);
-                    callback([], error); // Lempar error ke UI agar loading berhenti
+                    callback([], error); 
                 });
             }
         };
@@ -489,12 +568,11 @@
                 isSubmitting: false,
                 isLoadingData: true,
                 message: { text: '', type: '' },
-                transactions: [], // Tempat menampung data array dari Firestore
-                unsubscribe: null, // Penyimpan fungsi stop listening database
-                editId: null, // Track ID transaksi yang sedang di-edit
-                confirmModal: { open: false, id: null }, // State untuk modal konfirmasi hapus
+                transactions: [], 
+                unsubscribe: null, 
+                editId: null, 
+                confirmModal: { open: false, id: null }, 
                 
-                // Set default bulan saat ini "YYYY-MM" dengan aman menghindari timezone bug
                 selectedMonth: (() => {
                     const d = new Date();
                     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
@@ -508,22 +586,18 @@
                     amount: ''
                 },
 
-                // FUNGSI INI SEBELUMNYA TERHAPUS: Pemicu awal saat Tab Kas dibuka
                 init() {
                     this.fetchTransactions();
                 },
 
-                // Reset form saat tombol plus ditekan
                 openAddModal() {
                     this.editId = null;
                     this.form = { type: 'income', date: new Date().toISOString().split('T')[0], category: '', description: '', amount: '' };
                     this.isTransactionModalOpen = true;
                 },
 
-                // Menarik data / Listen realtime dari service layer
                 fetchTransactions() {
                     this.isLoadingData = true;
-                    // Hentikan listener bulan sebelumnya jika ada
                     if (this.unsubscribe) this.unsubscribe();
                     
                     this.unsubscribe = FinanceService.listenTransactions(this.selectedMonth, (data, error) => {
@@ -535,12 +609,10 @@
                     });
                 },
 
-                // Utility: Format Angka ke Rupiah (Rp 1.500.000)
                 formatRupiah(angka) {
                     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
                 },
 
-                // Getter untuk menghitung total otomatis (Aman jika ada nilai nominal yg rusak di database)
                 get totalIncome() {
                     return this.transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
                 },
@@ -548,12 +620,25 @@
                     return this.transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
                 },
 
+                // Menghitung Saldo Berjalan (Running Balance) Khusus Untuk Format Cetak
+                get processedTransactions() {
+                    let currentSaldo = 0;
+                    return this.transactions.map(trx => {
+                        const amount = Number(trx.amount) || 0;
+                        if (trx.type === 'income') {
+                            currentSaldo += amount;
+                        } else {
+                            currentSaldo -= amount;
+                        }
+                        return { ...trx, saldo: currentSaldo };
+                    });
+                },
+
                 showMessage(text, type = 'success') {
                     this.message = { text, type };
                     setTimeout(() => { this.message.text = ''; }, 4000);
                 },
 
-                // Fungsi mengisi form dengan data yang dipilih
                 editTransaction(trx) {
                     this.editId = trx.id;
                     this.form = {
@@ -566,13 +651,11 @@
                     this.isTransactionModalOpen = true;
                 },
 
-                // Fungsi pemicu modal konfirmasi hapus
                 confirmDelete(id) {
                     this.confirmModal.id = id;
                     this.confirmModal.open = true;
                 },
 
-                // Eksekusi penghapusan setelah dikonfirmasi
                 async executeDelete() {
                     this.isSubmitting = true;
                     try {
@@ -595,23 +678,20 @@
                         if (!currentUser) throw new Error("Akses ditolak, silakan login.");
 
                         if (this.editId) {
-                            // Update jika mode Edit
                             await FinanceService.updateTransaction(this.editId, this.form);
                             this.showMessage('Transaksi berhasil diperbarui!');
                         } else {
-                            // Tambah Baru
                             await FinanceService.addTransaction(this.form, currentUser.uid);
                             this.showMessage('Transaksi berhasil disimpan!');
                         }
                         
                         this.isTransactionModalOpen = false;
-                        this.editId = null; // Reset edit status
+                        this.editId = null; 
                         
                         this.form.category = '';
                         this.form.description = '';
                         this.form.amount = '';
                         
-                        // Opsional: Jika transaksi yang diinput beda bulan dengan yg sedang dilihat, otomatis ganti bulan view
                         if(this.form.date.substring(0,7) !== this.selectedMonth) {
                             this.selectedMonth = this.form.date.substring(0,7);
                             this.fetchTransactions();
