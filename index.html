@@ -53,6 +53,13 @@
             tfoot { display: table-footer-group; }
         }
     </style>
+
+    <!-- PWA Setup: Manifest & Meta Tags (Standar Mobile Experience) -->
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#2563EB">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2933/2933116.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body class="bg-gray-50 text-gray-900">
 
@@ -157,8 +164,8 @@
                                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                             </div>
                             <div class="flex flex-col">
-                                <h1 class="font-bold text-xl text-blue-700 leading-tight">BKU Digital</h1>
-                                <p class="text-xs text-gray-500">Aplikasi Bendahara Sekolah</p>
+                                <h1 class="font-bold text-xl text-blue-700 leading-tight">KKGO Digital</h1>
+                                <p class="text-xs text-gray-500"></p>
                             </div>
                         </div>
 
@@ -200,7 +207,7 @@
                         </div>
                         <div class="flex flex-col">
                             <h1 class="font-bold text-[16px] text-gray-900 leading-tight">KKGO Digital</h1>
-                            <p class="text-[11px] text-gray-500 leading-none mt-0.5">KKGO Penjaskes</p>
+                            <p class="text-[11px] text-gray-500 leading-none mt-0.5">Kelompok Kerja Guru Olahraga</p>
                         </div>
                     </div>
                     <button @click="logout()" class="p-1.5 text-red-500 border border-red-200 bg-red-50 hover:bg-red-100 rounded-lg transition-colors shrink-0" title="Keluar">
@@ -247,8 +254,8 @@
                         <div x-transition.opacity class="p-4 md:p-8">
                             <h2 class="text-2xl font-bold text-gray-800 mb-6">Dashboard Ringkasan</h2>
                             <div class="bg-blue-50 border border-blue-100 rounded-2xl p-6 shadow-sm text-center">
-                                <h3 class="text-lg font-medium text-blue-800">Selamat datang di BKU Digital</h3>
-                                <p class="text-sm text-blue-600 mt-2">Aplikasi Pengelolaan Kas dan Iuran Modern.</p>
+                                <h3 class="text-lg font-medium text-blue-800">Selamat datang di KKGO Digital</h3>
+                                <p class="text-sm text-blue-600 mt-2">Sementara Zonk.</p>
                             </div>
                         </div>
                     </template>
@@ -985,6 +992,21 @@
                 }
             }));
         });
+
+        // Mendaftarkan PWA Service Worker (Standar Web Modern)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                /* Gunakan './sw.js' (relative path) agar aman di GitHub Pages 
+                   yang biasanya menggunakan format subdirectory (domain.github.io/nama-repo/) */
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => {
+                        console.log('✅ PWA Service Worker terdaftar dengan scope:', registration.scope);
+                    })
+                    .catch(err => {
+                        console.error('❌ Gagal mendaftarkan Service Worker:', err);
+                    });
+            });
+        }
 
         window.Alpine = Alpine;
         Alpine.start();
