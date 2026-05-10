@@ -7,30 +7,50 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Standar CSS Khusus untuk Mode Cetak (Print) */
+        @media screen {
+            .print-only { display: none !important; }
+        }
         @media print {
-            body { 
-                background-color: white !important; 
-                /* Efek Zoom Out agar tabel mengecil dan memuat lebih banyak data di kertas */
-                zoom: 0.80; 
+            .print-only { display: block !important; }
+            .no-print { display: none !important; }
+            @page {
+                size: portrait;
+                margin: 1.5cm;
             }
-            /* Menyembunyikan elemen UI yang tidak perlu di kertas laporan */
+            body, html { 
+                background-color: white !important; 
+                height: auto !important; 
+            }
+            /* Membuka kunci tinggi layar agar bisa multi-halaman */
+            .h-screen, .min-h-screen {
+                height: auto !important;
+                min-height: auto !important;
+            }
+            /* Mengizinkan konten meluber ke halaman baru */
+            .overflow-hidden {
+                overflow: visible !important;
+            }
             header, nav { 
                 display: none !important; 
             }
-            /* Menyesuaikan area utama agar full di kertas */
             main { 
                 padding: 0 !important; 
                 margin: 0 !important; 
                 overflow: visible !important; 
                 max-width: 100% !important;
+                height: auto !important;
             }
-            /* Memaksa warna text/background Tailwind (seperti merah/hijau kas) tetap tercetak */
             * { 
                 -webkit-print-color-adjust: exact !important; 
                 print-color-adjust: exact !important; 
             }
-            /* Mengubah struktur layout dari scrollable menjadi statis untuk print */
             .overflow-y-auto { overflow: visible !important; max-height: none !important; }
+            
+            /* Mencegah baris tabel terpotong setengah di antara dua kertas */
+            table { page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+            thead { display: table-header-group; }
+            tfoot { display: table-footer-group; }
         }
     </style>
 </head>
@@ -75,8 +95,60 @@
 
         <!-- DASHBOARD -->
         <template x-if="user">
-            <div x-data="{ activeTab: 'kas' }" class="w-full h-screen bg-gray-50 flex flex-col overflow-hidden">
+            <!-- Tambahkan state showActionMenu di sini -->
+            <div x-data="{ activeTab: 'kas', showActionMenu: false }" class="w-full h-screen bg-gray-50 flex flex-col overflow-hidden">
                 
+                <!-- ACTION MENU POPUP (Muncul saat tombol + di klik) -->
+                <div x-show="showActionMenu" class="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:p-4 pb-24 px-4" style="display: none;">
+                    <!-- Backdrop -->
+                    <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity" @click="showActionMenu = false" x-transition.opacity></div>
+                    
+                    <!-- Menu Panel -->
+                    <div class="bg-white rounded-3xl p-6 shadow-2xl z-10 w-full max-w-sm transform transition-all"
+                         x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-full" x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-full">
+                        
+                        <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6 cursor-pointer sm:hidden" @click="showActionMenu = false"></div>
+                        <h3 class="text-lg font-bold text-gray-800 mb-5 px-1">Pilih Aksi Tambah Data</h3>
+                        
+                        <div class="space-y-3">
+                            <!-- 1. Input Data Sekolah -->
+                            <button @click="showActionMenu = false; activeTab = 'iuran'; setTimeout(() => $dispatch('open-add-iuran'), 150);" class="w-full flex items-center gap-4 p-4 bg-gray-50 hover:bg-blue-50 border border-transparent hover:border-blue-100 rounded-2xl transition-all group text-left">
+                                <div class="w-12 h-12 bg-white rounded-xl shadow-sm border border-gray-100 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition-colors">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-gray-800 text-[15px]">1. Input Data Sekolah</div>
+                                    <div class="text-xs text-gray-500 mt-0.5">Tambah daftar sekolah & nama penyetor</div>
+                                </div>
+                            </button>
+
+                            <!-- 2. Input Iuran Sekolah (Dual Update) -->
+                            <button @click="showActionMenu = false; activeTab = 'iuran'; setTimeout(() => $dispatch('open-pembayaran-iuran'), 150);" class="w-full flex items-center gap-4 p-4 bg-gray-50 hover:bg-green-50 border border-transparent hover:border-green-100 rounded-2xl transition-all group text-left relative overflow-hidden">
+                                <div class="absolute right-0 top-0 w-2 h-full bg-green-500"></div>
+                                <div class="w-12 h-12 bg-white rounded-xl shadow-sm border border-gray-100 flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white group-hover:border-green-600 transition-colors">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-gray-800 text-[15px]">2. Input Iuran Sekolah</div>
+                                    <div class="text-xs text-green-600 font-semibold mt-0.5">+ Update Otomatis ke BKU</div>
+                                </div>
+                            </button>
+
+                            <!-- 3. Catat Transaksi Umum -->
+                            <button @click="showActionMenu = false; activeTab = 'kas'; setTimeout(() => $dispatch('open-add-modal'), 150);" class="w-full flex items-center gap-4 p-4 bg-gray-50 hover:bg-purple-50 border border-transparent hover:border-purple-100 rounded-2xl transition-all group text-left">
+                                <div class="w-12 h-12 bg-white rounded-xl shadow-sm border border-gray-100 flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white group-hover:border-purple-600 transition-colors">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-gray-800 text-[15px]">3. Catat Transaksi BKU</div>
+                                    <div class="text-xs text-gray-500 mt-0.5">Input Pemasukan / Pengeluaran lain</div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- 1. TOP NAVIGATION DESKTOP -->
                 <header class="print:hidden hidden md:block bg-white w-full border-b border-gray-200 z-40 px-8 pt-5 shrink-0">
                     <div class="flex justify-between items-center mb-6 max-w-7xl mx-auto">
@@ -137,7 +209,7 @@
                 </header>
 
                 <!-- 2. MOBILE BOTTOM NAVIGATION -->
-                <nav class="print:hidden md:hidden fixed bottom-0 w-full bg-white border-t border-gray-200 flex justify-between items-center px-2 pb-3 pt-2 z-50 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)]">
+                <nav class="print:hidden md:hidden fixed bottom-0 w-full bg-white border-t border-gray-200 flex justify-between items-center px-2 pb-3 pt-2 z-[60] shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)]">
                     <button @click="activeTab = 'home'" class="flex flex-col items-center gap-1 w-1/5" :class="activeTab === 'home' ? 'text-blue-600' : 'text-gray-400'">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                         <span class="text-[10px] font-medium">Home</span>
@@ -148,10 +220,11 @@
                         <span class="text-[10px] font-medium">Kas</span>
                     </button>
 
+                    <!-- TOMBOL PLUS DIPERBARUI - Sekarang memanggil showActionMenu = true -->
                     <div class="relative w-1/5 flex justify-center">
-                        <button @click="activeTab === 'iuran' ? $dispatch('open-add-iuran') : (activeTab = 'kas', $dispatch('open-add-modal'))" 
+                        <button @click="showActionMenu = true" 
                             class="absolute -top-7 bg-blue-600 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-[0_4px_16px_rgba(37,99,235,0.5)] hover:bg-blue-700 active:scale-95 transition-all duration-200 z-50">
-                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                            <svg class="w-8 h-8 transition-transform duration-300" :class="showActionMenu ? 'rotate-45' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
                         </button>
                     </div>
 
@@ -280,7 +353,7 @@
                                 <div class="lg:col-span-2 flex-1">
                                     
                                     <!-- FORMAT CETAK BKU STANDAR -->
-                                    <div class="hidden print:block w-full bg-white pb-10">
+                                    <div class="print-only w-full bg-white pb-10">
                                         <div class="mb-4 text-center">
                                             <h2 class="text-xl font-bold text-black">Laporan Buku Kas Umum (BKU)</h2>
                                             <p class="text-black font-semibold mt-1 text-base" x-text="'Periode Bulan: ' + selectedMonth"></p>
@@ -318,9 +391,9 @@
                                     </div>
 
                                     <!-- TAMPILAN LAYAR APLIKASI (BKU Card) -->
-                                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col print:hidden overflow-hidden relative">
+                                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col no-print overflow-hidden relative">
                                         
-                                        <!-- Header Daftar Transaksi & Filter Bulan (Dipadatkan h-14) -->
+                                        <!-- Header Daftar Transaksi & Filter Bulan -->
                                         <div class="sticky top-0 z-30 h-14 md:h-16 px-4 md:px-5 border-b border-gray-200 flex justify-between items-center bg-white/95 backdrop-blur-md">
                                             <h3 class="font-bold text-gray-800 text-sm md:text-lg">Riwayat BKU</h3>
                                             
@@ -337,12 +410,10 @@
 
                                         <!-- Konten Daftar Transaksi -->
                                         <div class="bg-gray-50/30 pb-2">
-                                            <!-- Loader saat menarik data -->
                                             <div x-show="isLoadingData" class="flex justify-center items-center p-10 print:hidden">
                                                 <div class="animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
                                             </div>
 
-                                            <!-- State Kosong -->
                                             <template x-if="!isLoadingData && transactions.length === 0">
                                                 <div class="flex flex-col items-center justify-center p-12 text-gray-400 print:hidden">
                                                     <svg class="w-16 h-16 mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
@@ -351,10 +422,8 @@
                                                 </div>
                                             </template>
 
-                                            <!-- Tampilan List Transaksi -->
                                             <template x-if="!isLoadingData && transactions.length > 0">
                                                 <table class="w-full text-left border-collapse">
-                                                    <!-- Table header menempel di top-14 (Mobile) agar tersambung dgn Card header -->
                                                     <thead class="sticky top-14 md:top-16 z-20 bg-gray-50/95 backdrop-blur-md border-b border-gray-200">
                                                         <tr class="text-[9px] md:text-[11px] text-gray-500 uppercase tracking-wider">
                                                             <th class="px-2 py-2 font-semibold text-center w-8">No</th>
@@ -367,12 +436,8 @@
                                                     <tbody class="divide-y divide-gray-100 bg-white">
                                                         <template x-for="(trx, index) in transactions" :key="trx.id">
                                                             <tr class="hover:bg-gray-50/80 transition-colors">
-                                                                <td class="px-1 py-2 align-top text-center">
-                                                                    <div class="text-[10px] md:text-[11px] font-semibold text-gray-500 mt-1" x-text="index + 1"></div>
-                                                                </td>
-                                                                <td class="px-2 py-2 align-top">
-                                                                    <div class="text-[10px] md:text-[11px] font-semibold text-gray-500 mt-1" x-text="trx.date.substring(8, 10) + '/' + trx.date.substring(5, 7)"></div>
-                                                                </td>
+                                                                <td class="px-1 py-2 align-top text-center"><div class="text-[10px] md:text-[11px] font-semibold text-gray-500 mt-1" x-text="index + 1"></div></td>
+                                                                <td class="px-2 py-2 align-top"><div class="text-[10px] md:text-[11px] font-semibold text-gray-500 mt-1" x-text="trx.date.substring(8, 10) + '/' + trx.date.substring(5, 7)"></div></td>
                                                                 <td class="px-2 py-2.5 align-top">
                                                                     <div class="text-xs md:text-sm font-bold text-gray-800 leading-tight break-words" x-text="trx.description"></div>
                                                                     <div class="text-[9px] md:text-[10px] text-gray-400 font-semibold uppercase mt-0.5" x-text="trx.category"></div>
@@ -400,23 +465,12 @@
                                             </template>
                                         </div>
 
-                                        <!-- Footer/Ringkasan Bawah -->
                                         <div class="p-3 md:p-4 bg-white border-t border-gray-200 shrink-0 relative z-30">
-                                            <div class="flex justify-between items-center mb-1">
-                                                <span class="text-[10px] md:text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Total Pemasukan</span>
-                                                <span class="text-[11px] md:text-xs font-extrabold text-green-600" x-text="'+ ' + formatRupiah(totalIncome)"></span>
-                                            </div>
-                                            <div class="flex justify-between items-center mb-1.5">
-                                                <span class="text-[10px] md:text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Total Pengeluaran</span>
-                                                <span class="text-[11px] md:text-xs font-extrabold text-red-600" x-text="'- ' + formatRupiah(totalExpense)"></span>
-                                            </div>
+                                            <div class="flex justify-between items-center mb-1"><span class="text-[10px] md:text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Total Pemasukan</span><span class="text-[11px] md:text-xs font-extrabold text-green-600" x-text="'+ ' + formatRupiah(totalIncome)"></span></div>
+                                            <div class="flex justify-between items-center mb-1.5"><span class="text-[10px] md:text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Total Pengeluaran</span><span class="text-[11px] md:text-xs font-extrabold text-red-600" x-text="'- ' + formatRupiah(totalExpense)"></span></div>
                                             <div class="h-px w-full bg-gray-200 my-1.5 md:my-2"></div>
-                                            <div class="flex justify-between items-center">
-                                                <span class="text-xs md:text-sm font-bold text-gray-800">Sisa Kas</span>
-                                                <span class="text-sm md:text-base font-black text-blue-700" x-text="formatRupiah(totalIncome - totalExpense)"></span>
-                                            </div>
+                                            <div class="flex justify-between items-center"><span class="text-xs md:text-sm font-bold text-gray-800">Sisa Kas</span><span class="text-sm md:text-base font-black text-blue-700" x-text="formatRupiah(totalIncome - totalExpense)"></span></div>
                                         </div>
-
                                     </div>
                                 </div>
                             </div>
@@ -425,9 +479,9 @@
 
                     <!-- TAB: IURAN (DATA IURAN SEKOLAH) -->
                     <template x-if="activeTab === 'iuran'">
-                        <div x-data="iuranApp" @open-add-iuran.window="openModal()" x-transition.opacity class="pb-24 md:pb-0">
+                        <div x-data="iuranApp" @open-add-iuran.window="openModal()" @open-pembayaran-iuran.window="openPembayaranModal()" x-transition.opacity class="pb-24 md:pb-0">
                             
-                            <!-- Modal Form Tambah/Edit Data Sekolah -->
+                            <!-- MODAL 1: Form Tambah/Edit Data Sekolah (Bawaan) -->
                             <div x-show="isModalOpen" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4" style="display: none;">
                                 <div class="bg-white rounded-2xl w-full max-w-md shadow-xl overflow-hidden" @click.away="closeModal()">
                                     <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
@@ -448,19 +502,130 @@
                                 </div>
                             </div>
 
-                            <!-- Card Data Iuran -->
-                            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col overflow-hidden relative min-h-[300px]">
+                            <!-- MODAL 2: Form Input Iuran (Dual Update: Iuran + BKU) -->
+                            <div x-show="isPembayaranModalOpen" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4" style="display: none;">
+                                <div class="bg-white rounded-2xl w-full max-w-md shadow-xl overflow-hidden" @click.away="closePembayaranModal()">
+                                    <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            </div>
+                                            <h3 class="font-bold text-lg text-gray-800">Catat Iuran Masuk</h3>
+                                        </div>
+                                        <button type="button" @click="closePembayaranModal()" class="text-gray-400 hover:text-gray-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                                    </div>
+                                    <form @submit.prevent="submitPembayaranIuran()" class="p-6">
+                                        <div class="bg-blue-50 text-blue-700 text-xs p-3 rounded-lg border border-blue-100 mb-5 flex gap-2 items-start">
+                                            <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <p>Data yang diinput otomatis mencentang pertemuan di tabel Iuran & menambah saldo di Buku Kas Umum (BKU).</p>
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <label class="block text-sm font-semibold text-gray-600 mb-1">Sekolah Penyetor</label>
+                                            <select x-model="formPembayaran.sekolah_id" @change="autoSelectPertemuan()" required class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none text-sm transition-all">
+                                                <option value="" disabled>-- Pilih Sekolah --</option>
+                                                <template x-for="sekolah in iuranList" :key="sekolah.id">
+                                                    <option :value="sekolah.id" x-text="sekolah.nama_sekolah + ' (' + sekolah.nama_guru + ')'"></option>
+                                                </template>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="mb-4">
+                                            <label class="block text-sm font-semibold text-gray-600 mb-2">Pertemuan Ke-</label>
+                                            <div class="grid grid-cols-6 gap-2">
+                                                <template x-for="p in ['p1','p2','p3','p4','p5','p6']" :key="p">
+                                                    <label class="text-center relative group" :class="isPertemuanPaid(formPembayaran.sekolah_id, p) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'">
+                                                        <input type="radio" name="pertemuan" :value="p" x-model="formPembayaran.pertemuan" class="peer sr-only" :disabled="isPertemuanPaid(formPembayaran.sekolah_id, p)">
+                                                        <div class="px-0 py-2 border border-gray-200 rounded-lg text-[13px] font-bold uppercase transition-all peer-checked:bg-green-500 peer-checked:text-white peer-checked:border-green-500 peer-checked:shadow text-gray-500 bg-gray-50 peer-disabled:bg-gray-200 peer-disabled:text-gray-400 group-hover:not(.peer-disabled):bg-gray-100" x-text="p"></div>
+                                                    </label>
+                                                </template>
+                                            </div>
+                                            <p x-show="formPembayaran.sekolah_id && !formPembayaran.pertemuan" class="text-xs text-red-500 mt-1">Semua pertemuan sudah lunas dibayar.</p>
+                                        </div>
+
+                                        <div class="grid grid-cols-2 gap-4 mb-6">
+                                            <div>
+                                                <label class="block text-sm font-semibold text-gray-600 mb-1">Tanggal</label>
+                                                <input type="date" x-model="formPembayaran.tanggal" required class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none text-sm transition-all">
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-semibold text-gray-600 mb-1">Nominal (Rp)</label>
+                                                <input type="number" x-model="formPembayaran.nominal" required class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none font-bold text-base transition-all">
+                                            </div>
+                                        </div>
+
+                                        <button type="submit" :disabled="isSubmittingForm" class="w-full bg-green-600 text-white font-bold py-3.5 rounded-xl hover:bg-green-700 active:scale-95 transition-all shadow-lg shadow-green-500/30 flex justify-center items-center gap-2">
+                                            <span x-show="isSubmittingForm" class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
+                                            <span x-text="isSubmittingForm ? 'Menyimpan & Update BKU...' : 'Simpan Pembayaran Iuran'"></span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- FORMAT CETAK IURAN STANDAR -->
+                            <div class="print-only w-full bg-white pb-10">
+                                <div class="mb-6 text-center">
+                                    <h2 class="text-2xl font-bold text-black uppercase tracking-wide">Laporan Daftar Iuran Sekolah</h2>
+                                    <p class="text-sm text-gray-700 mt-1">Rekapitulasi Pembayaran Pertemuan</p>
+                                </div>
                                 
-                                <!-- Header Iuran -->
+                                <table class="w-full border-collapse border border-black text-black mt-4">
+                                    <thead>
+                                        <tr class="text-sm bg-gray-100">
+                                            <th class="border border-black p-2 text-center w-10">NO</th>
+                                            <th class="border border-black p-2 text-left">NAMA SEKOLAH</th>
+                                            <th class="border border-black p-2 text-center w-10">P1</th>
+                                            <th class="border border-black p-2 text-center w-10">P2</th>
+                                            <th class="border border-black p-2 text-center w-10">P3</th>
+                                            <th class="border border-black p-2 text-center w-10">P4</th>
+                                            <th class="border border-black p-2 text-center w-10">P5</th>
+                                            <th class="border border-black p-2 text-center w-10">P6</th>
+                                            <th class="border border-black p-2 text-right w-28">TOTAL</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-sm">
+                                        <template x-for="(item, index) in iuranList" :key="item.id">
+                                            <tr>
+                                                <td class="border border-black p-2 text-center align-top" x-text="index + 1"></td>
+                                                <td class="border border-black p-2 align-top">
+                                                    <div class="font-bold uppercase" x-text="item.nama_sekolah"></div>
+                                                    <div class="text-xs text-gray-600 mt-0.5" x-text="'Penyetor: ' + item.nama_guru"></div>
+                                                </td>
+                                                <td class="border border-black p-2 text-center align-top text-lg font-bold" x-text="item.p1 ? '✓' : ''"></td>
+                                                <td class="border border-black p-2 text-center align-top text-lg font-bold" x-text="item.p2 ? '✓' : ''"></td>
+                                                <td class="border border-black p-2 text-center align-top text-lg font-bold" x-text="item.p3 ? '✓' : ''"></td>
+                                                <td class="border border-black p-2 text-center align-top text-lg font-bold" x-text="item.p4 ? '✓' : ''"></td>
+                                                <td class="border border-black p-2 text-center align-top text-lg font-bold" x-text="item.p5 ? '✓' : ''"></td>
+                                                <td class="border border-black p-2 text-center align-top text-lg font-bold" x-text="item.p6 ? '✓' : ''"></td>
+                                                <td class="border border-black p-2 text-right align-top font-bold" x-text="hitungTotal(item)"></td>
+                                            </tr>
+                                        </template>
+                                        <template x-if="iuranList.length === 0">
+                                            <tr>
+                                                <td colspan="9" class="border border-black p-4 text-center italic text-gray-500">Belum ada data sekolah.</td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Card Data Iuran -->
+                            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col no-print overflow-hidden relative min-h-[300px]">
+                                
                                 <div class="sticky top-0 z-30 h-14 md:h-16 px-4 md:px-5 border-b border-gray-200 flex justify-between items-center bg-white/95 backdrop-blur-md">
                                     <h3 class="font-bold text-gray-800 text-sm md:text-lg">Data Iuran Sekolah</h3>
-                                    <button type="button" @click="openModal()" class="hidden md:flex bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold hover:bg-blue-700 transition items-center gap-1.5">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                                        Tambah Sekolah
-                                    </button>
+                                    <div class="flex items-center gap-2 print:hidden">
+                                        <button @click="window.print()" class="p-1.5 md:p-2 text-blue-600 border border-blue-200 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors active:scale-95 flex items-center gap-2" title="Cetak Data Iuran">
+                                            <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                            <span class="hidden md:inline text-sm font-medium">Cetak</span>
+                                        </button>
+                                        <button type="button" @click="openModal()" class="hidden md:flex bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold hover:bg-blue-700 transition items-center gap-1.5">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                            Tambah Sekolah
+                                        </button>
+                                    </div>
                                 </div>
 
-                                <!-- Area Tabel Horizontal Scroll -->
                                 <div class="overflow-x-auto flex-1 bg-gray-50/30">
                                     <div x-show="isLoading" class="flex justify-center p-10"><div class="animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div></div>
                                     
@@ -469,7 +634,6 @@
                                             <tr class="text-[9px] md:text-[11px] text-gray-500 uppercase tracking-wider">
                                                 <th class="px-2 py-2 font-semibold text-center w-8">No</th>
                                                 <th class="px-2 py-2 font-semibold min-w-[120px]">Sekolah & Penyetor</th>
-                                                <!-- P1 s/d P6 dengan lebar yang sama namun lebih kecil -->
                                                 <th class="px-1 py-2 font-semibold text-center w-8">P1</th>
                                                 <th class="px-1 py-2 font-semibold text-center w-8">P2</th>
                                                 <th class="px-1 py-2 font-semibold text-center w-8">P3</th>
@@ -477,18 +641,13 @@
                                                 <th class="px-1 py-2 font-semibold text-center w-8">P5</th>
                                                 <th class="px-1 py-2 font-semibold text-center w-8">P6</th>
                                                 <th class="px-2 py-2 font-semibold text-right min-w-[80px]">Total</th>
-                                                <th class="px-2 py-2 font-semibold text-center w-14">Aksi</th>
+                                                <th class="px-2 py-2 font-semibold text-center w-14 print:hidden">Aksi</th>
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y divide-gray-100 bg-white">
                                             <template x-for="(item, index) in iuranList" :key="item.id">
                                                 <tr class="hover:bg-gray-50/80 transition-colors">
-                                                    <!-- Nomor -->
-                                                    <td class="px-1 py-2 align-top text-center">
-                                                        <div class="text-[10px] md:text-[11px] font-semibold text-gray-500 mt-1" x-text="index + 1"></div>
-                                                    </td>
-                                                    
-                                                    <!-- Sekolah & Penyetor (Digabung) -->
+                                                    <td class="px-1 py-2 align-top text-center"><div class="text-[10px] md:text-[11px] font-semibold text-gray-500 mt-1" x-text="index + 1"></div></td>
                                                     <td class="px-2 py-2 align-top">
                                                         <div class="text-[11px] md:text-sm font-bold text-gray-800 leading-tight break-words" x-text="item.nama_sekolah"></div>
                                                         <div class="text-[9px] md:text-[10px] text-gray-400 font-semibold mt-0.5 flex items-center gap-1">
@@ -496,38 +655,24 @@
                                                             <span x-text="item.nama_guru"></span>
                                                         </div>
                                                     </td>
-                                                    
-                                                    <!-- Kolom Pertemuan 1-6 (Kompak) -->
                                                     <template x-for="p in ['p1','p2','p3','p4','p5','p6']" :key="p">
                                                         <td class="px-1 py-2 align-top text-center">
-                                                            <button type="button" @click="togglePertemuan(item.id, p, item[p])" 
+                                                            <button type="button" @click="handleIuranClick(item, p, item[p])" 
                                                                 class="w-5 h-5 mx-auto rounded flex items-center justify-center transition-all shadow-sm active:scale-90 mt-1"
                                                                 :class="item[p] ? 'bg-green-500 text-white' : 'bg-gray-100 border border-gray-200 text-gray-300 hover:bg-gray-200'">
                                                                 <svg x-show="item[p]" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                                                             </button>
                                                         </td>
                                                     </template>
-
-                                                    <!-- Total Iuran -->
-                                                    <td class="px-2 py-2 align-top text-right whitespace-nowrap">
-                                                        <div class="text-[11px] md:text-[12px] font-extrabold text-blue-600 mt-1" x-text="hitungTotal(item)"></div>
-                                                    </td>
-                                                    
-                                                    <!-- Aksi -->
-                                                    <td class="px-2 py-2 align-top text-center whitespace-nowrap">
+                                                    <td class="px-2 py-2 align-top text-right whitespace-nowrap"><div class="text-[11px] md:text-[12px] font-extrabold text-blue-600 mt-1" x-text="hitungTotal(item)"></div></td>
+                                                    <td class="px-2 py-2 align-top text-center whitespace-nowrap print:hidden">
                                                         <div class="flex items-center justify-center gap-1 mt-0.5">
-                                                            <button type="button" @click="editData(item)" class="text-blue-500 hover:text-blue-700 bg-blue-50 p-1 md:p-1.5 rounded transition active:scale-95" title="Edit">
-                                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                                                            </button>
-                                                            <button type="button" @click="deleteData(item.id)" class="text-red-500 hover:text-red-700 bg-red-50 p-1 md:p-1.5 rounded transition active:scale-95" title="Hapus">
-                                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                                            </button>
+                                                            <button type="button" @click="editData(item)" class="text-blue-500 hover:text-blue-700 bg-blue-50 p-1 md:p-1.5 rounded transition active:scale-95" title="Edit"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                                                            <button type="button" @click="deleteData(item.id)" class="text-red-500 hover:text-red-700 bg-red-50 p-1 md:p-1.5 rounded transition active:scale-95" title="Hapus"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                                                         </div>
                                                     </td>
                                                 </tr>
                                             </template>
-                                            
-                                            <!-- State Kosong -->
                                             <tr x-show="iuranList.length === 0">
                                                 <td colspan="10" class="text-center py-8 text-gray-400 italic text-xs">Belum ada data sekolah yang diinput.</td>
                                             </tr>
@@ -547,12 +692,11 @@
         </template>
     </div>
 
-    <!-- MENGGUNAKAN MODULE AGAR ALPINE DAN FIREBASE TIDAK BENTROK -->
     <script type="module">
         import Alpine from "https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/module.esm.js";
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp, query, where, onSnapshot, doc, updateDoc, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, query, where, onSnapshot, doc, updateDoc, deleteDoc, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCsgM8CK9-_WhFuQr-xe7FkL_kB6qRR2RQ",
@@ -580,69 +724,73 @@
                     date: data.date, 
                     month: monthString, 
                     source: 'manual',
-                    closed: false, // Wajib sesuai Rules Firebase
+                    closed: false,
                     createdAt: serverTimestamp(),
                     createdBy: userUid
                 };
+
+                // PERBAIKAN: Pastikan data relasi ke tabel Iuran ikut tersimpan di database
+                if (data.related_sekolah_id) payload.related_sekolah_id = data.related_sekolah_id;
+                if (data.related_pertemuan) payload.related_pertemuan = data.related_pertemuan;
+
                 return await addDoc(collection(db, "transactions"), payload);
             },
             async updateTransaction(id, data) {
                 if (data.amount <= 0) throw new Error("Jumlah harus lebih dari 0");
                 const monthString = data.date.substring(0, 7);
-                const payload = {
-                    type: data.type,
-                    amount: Number(data.amount),
-                    category: data.category,
-                    description: data.description,
-                    date: data.date, 
-                    month: monthString
-                };
+                const payload = { type: data.type, amount: Number(data.amount), category: data.category, description: data.description, date: data.date, month: monthString };
                 return await updateDoc(doc(db, "transactions", id), payload);
             },
-            async deleteTransaction(id) {
-                return await deleteDoc(doc(db, "transactions", id));
+            async deleteTransaction(id) { return await deleteDoc(doc(db, "transactions", id)); },
+            async deleteTransactionByDescription(descText) {
+                const q = query(collection(db, "transactions"), where("description", "==", descText));
+                const snapshot = await getDocs(q);
+                const deletePromises = [];
+                snapshot.forEach((docSnap) => {
+                    deletePromises.push(deleteDoc(doc(db, "transactions", docSnap.id)));
+                });
+                return Promise.all(deletePromises);
             },
             listenTransactions(monthString, callback) {
                 const q = query(collection(db, "transactions"), where("month", "==", monthString));
                 return onSnapshot(q, (snapshot) => {
-                    const data = [];
-                    snapshot.forEach((doc) => { data.push({ id: doc.id, ...doc.data() }); });
-                    data.sort((a, b) => new Date(a.date) - new Date(b.date)); // Sort terlama ke terbaru (Ascending)
+                    const data = []; snapshot.forEach(doc => data.push({ id: doc.id, ...doc.data() }));
+                    
+                    // PERBAIKAN: Mengurutkan berdasarkan tanggal, lalu waktu input (createdAt)
+                    data.sort((a, b) => {
+                        const dateDiff = new Date(a.date) - new Date(b.date);
+                        if (dateDiff !== 0) return dateDiff; // Jika tanggal berbeda, urutkan sesuai tanggal
+                        
+                        // Jika tanggal sama persis, urutkan berdasarkan waktu input ke database
+                        const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+                        const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+                        return timeA - timeB;
+                    });
+                    
                     callback(data, null); 
-                }, (error) => { callback([], error); });
+                }, (error) => callback([], error));
             }
         };
 
         // SERVICE: DATA IURAN SEKOLAH
         const IuranService = {
             async addIuran(data) {
-                const payload = {
-                    ...data,
-                    p1: false, p2: false, p3: false, p4: false, p5: false, p6: false, // Default belum bayar
-                    createdAt: serverTimestamp()
-                };
+                const payload = { ...data, p1: false, p2: false, p3: false, p4: false, p5: false, p6: false, createdAt: serverTimestamp() };
                 return await addDoc(collection(db, "iuran_sekolah"), payload);
             },
-            async updateIuran(id, data) {
-                return await updateDoc(doc(db, "iuran_sekolah", id), data);
-            },
-            async deleteIuran(id) {
-                return await deleteDoc(doc(db, "iuran_sekolah", id));
-            },
+            async updateIuran(id, data) { return await updateDoc(doc(db, "iuran_sekolah", id), data); },
+            async deleteIuran(id) { return await deleteDoc(doc(db, "iuran_sekolah", id)); },
             listenIuran(callback) {
                 const q = query(collection(db, "iuran_sekolah"), orderBy("createdAt", "asc"));
                 return onSnapshot(q, (snapshot) => {
-                    const data = [];
-                    snapshot.forEach(doc => data.push({ id: doc.id, ...doc.data() }));
+                    const data = []; snapshot.forEach(doc => data.push({ id: doc.id, ...doc.data() }));
                     callback(data);
                 });
             }
         };
 
-        // ALPINE GLOBAL STATE DEFINITIONS
         document.addEventListener('alpine:init', () => {
             
-            // App 1: Auth
             Alpine.data('authApp', () => ({
                 user: null, loading: true, errorMessage: '', formData: { email: 'windusapto5@gmail.com', password: '' },
                 init() { onAuthStateChanged(auth, (user) => { this.user = user; this.loading = false; }); },
@@ -655,7 +803,6 @@
                 async logout() { this.loading = true; try { await signOut(auth); } finally { this.loading = false; } }
             }));
 
-            // App 2: BKU / Kas
             Alpine.data('bkuApp', () => ({
                 isSubmitting: false, isLoadingData: true, message: { text: '', type: '' },
                 transactions: [], unsubscribe: null, editId: null, confirmModal: { open: false, id: null }, 
@@ -688,7 +835,24 @@
                 confirmDelete(id) { this.confirmModal.id = id; this.confirmModal.open = true; },
                 async executeDelete() {
                     this.isSubmitting = true;
-                    try { await FinanceService.deleteTransaction(this.confirmModal.id); this.showMessage('Berhasil dihapus!'); } 
+                    try {
+                        // Cari data transaksi yang akan dihapus
+                        const trxToDelete = this.transactions.find(t => t.id === this.confirmModal.id);
+                        
+                        // Cek apakah ini transaksi iuran (memiliki data relasi tersembunyi)
+                        if (trxToDelete && trxToDelete.related_sekolah_id && trxToDelete.related_pertemuan) {
+                            // Hilangkan ceklis di tabel Data Iuran Sekolah secara otomatis
+                            const payload = {}; 
+                            payload[trxToDelete.related_pertemuan] = false;
+                            await IuranService.updateIuran(trxToDelete.related_sekolah_id, payload);
+                        }
+
+                        // Hapus transaksi dari Buku Kas
+                        await FinanceService.deleteTransaction(this.confirmModal.id); 
+                        this.showMessage('Berhasil dihapus!'); 
+                    } catch (error) {
+                        this.showMessage('Gagal menghapus: ' + error.message, 'error');
+                    }
                     finally { this.confirmModal.open = false; this.confirmModal.id = null; this.isSubmitting = false; }
                 },
                 async submitTransaction() {
@@ -706,65 +870,118 @@
                 }
             }));
 
-            // App 3: Iuran
             Alpine.data('iuranApp', () => ({
-                iuranList: [],
-                isLoading: true,
-                isModalOpen: false,
-                editId: null,
-                nominalIuran: 50000, // Akan dihubungkan ke setting nanti
-                form: { nama_sekolah: '', nama_guru: '' },
-                unsubscribe: null,
+                iuranList: [], isLoading: true, isModalOpen: false, editId: null, nominalIuran: 50000,
+                form: { nama_sekolah: '', nama_guru: '' }, unsubscribe: null,
+                
+                // State untuk Modal Dual Update Iuran
+                isPembayaranModalOpen: false, isSubmittingForm: false,
+                formPembayaran: { sekolah_id: '', pertemuan: 'p1', tanggal: new Date().toISOString().split('T')[0], nominal: 50000 },
 
                 init() {
-                    this.unsubscribe = IuranService.listenIuran((data) => {
-                        this.iuranList = data;
-                        this.isLoading = false;
-                    });
+                    this.unsubscribe = IuranService.listenIuran((data) => { this.iuranList = data; this.isLoading = false; });
                 },
-                openModal() {
-                    this.editId = null;
-                    this.form = { nama_sekolah: '', nama_guru: '' };
-                    this.isModalOpen = true;
-                },
-                closeModal() {
-                    this.isModalOpen = false;
-                },
-                editData(item) {
-                    this.editId = item.id;
-                    this.form = { nama_sekolah: item.nama_sekolah, nama_guru: item.nama_guru };
-                    this.isModalOpen = true;
-                },
+                
+                // METHOD MODAL 1: Data Sekolah (Bawaan)
+                openModal() { this.editId = null; this.form = { nama_sekolah: '', nama_guru: '' }; this.isModalOpen = true; },
+                closeModal() { this.isModalOpen = false; },
+                editData(item) { this.editId = item.id; this.form = { nama_sekolah: item.nama_sekolah, nama_guru: item.nama_guru }; this.isModalOpen = true; },
                 async submitData() {
-                    try {
-                        if (this.editId) {
-                            await IuranService.updateIuran(this.editId, this.form);
-                        } else {
-                            await IuranService.addIuran(this.form);
-                        }
-                        this.closeModal();
-                    } catch (e) { alert("Gagal menyimpan data."); }
+                    try { if (this.editId) await IuranService.updateIuran(this.editId, this.form); else await IuranService.addIuran(this.form); this.closeModal(); } 
+                    catch (e) { alert("Gagal menyimpan data."); }
                 },
-                async deleteData(id) {
-                    if(confirm("Hapus data sekolah ini?")) {
-                        await IuranService.deleteIuran(id);
+                async deleteData(id) { if(confirm("Hapus data sekolah ini?")) await IuranService.deleteIuran(id); },
+                
+                // MENGGANTIKAN FUNGSI togglePertemuan LAMA
+                async handleIuranClick(item, fieldPertemuan, isPaid) {
+                    if (!isPaid) {
+                        // Jika kotak kosong diklik -> Buka Modal Input Iuran otomatis terisi
+                        this.formPembayaran = {
+                            sekolah_id: item.id,
+                            pertemuan: fieldPertemuan,
+                            tanggal: new Date().toISOString().split('T')[0],
+                            nominal: this.nominalIuran
+                        };
+                        this.isPembayaranModalOpen = true;
+                    } else {
+                        // Jika kotak hijau diklik -> Kunci dan Tampilkan peringatan
+                        alert("⚠️ PENGHAPUSAN DITOLAK\n\nUntuk menjaga keamanan arus kas, pembatalan iuran (hapus ceklis) hanya bisa dilakukan dengan cara menghapus transaksi yang bersangkutan di tab 'Buku Kas' (Riwayat BKU).");
                     }
                 },
-                // UX Cepat: Toggle status bayar (P1-P6) langsung dari tabel
-                async togglePertemuan(id, fieldPertemuan, nilaiSekarang) {
-                    try {
-                        const payload = {};
-                        payload[fieldPertemuan] = !nilaiSekarang; // kebalikan (true -> false, false -> true)
-                        await IuranService.updateIuran(id, payload);
-                    } catch (e) {
-                        console.error("Gagal update status", e);
-                    }
-                },
+
                 hitungTotal(item) {
-                    // Hitung berapa banyak pertemuan (P1-P6) yang true
                     const count = [item.p1, item.p2, item.p3, item.p4, item.p5, item.p6].filter(Boolean).length;
-                    const total = count * this.nominalIuran;
-                    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(total);
+                    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(count * this.nominalIuran);
+                },
+
+                // METHOD MODAL 2: Input Pembayaran Iuran (Dual Update)
+                openPembayaranModal() {
+                    this.formPembayaran = { sekolah_id: '', pertemuan: 'p1', tanggal: new Date().toISOString().split('T')[0], nominal: this.nominalIuran };
+                    this.isPembayaranModalOpen = true;
+                },
+                closePembayaranModal() { this.isPembayaranModalOpen = false; },
+                
+                isPertemuanPaid(sekolahId, p) {
+                    if (!sekolahId) return false;
+                    const sekolah = this.iuranList.find(s => s.id === sekolahId);
+                    return sekolah ? sekolah[p] : false;
+                },
+                
+                autoSelectPertemuan() {
+                    const sekolahId = this.formPembayaran.sekolah_id;
+                    if (sekolahId) {
+                        const sekolah = this.iuranList.find(s => s.id === sekolahId);
+                        if (sekolah) {
+                            // Cari pertemuan pertama (p1-p6) yang statusnya masih false (belum dibayar)
+                            const unpaid = ['p1','p2','p3','p4','p5','p6'].find(p => !sekolah[p]);
+                            this.formPembayaran.pertemuan = unpaid || ''; // Kosong jika semua lunas
+                        }
+                    }
+                },
+
+                async submitPembayaranIuran() {
+                    if(!this.formPembayaran.sekolah_id) { alert("Pilih sekolah terlebih dahulu"); return; }
+                    if(!this.formPembayaran.pertemuan) { alert("Pilih pertemuan yang akan dibayar"); return; }
+                    
+                    this.isSubmittingForm = true;
+                    try {
+                        const currentUser = auth.currentUser;
+                        
+                        // 1. Update status P (Pertemuan) di data iuran menjadi true (dicentang)
+                        const updateData = {};
+                        updateData[this.formPembayaran.pertemuan] = true;
+                        await IuranService.updateIuran(this.formPembayaran.sekolah_id, updateData);
+
+                        // 2. Tambahkan otomatis ke Riwayat BKU (Kas Masuk) dengan data relasi
+                        const sekolahTerpilih = this.iuranList.find(s => s.id === this.formPembayaran.sekolah_id);
+                        const namaSekolah = sekolahTerpilih ? sekolahTerpilih.nama_sekolah : 'Sekolah';
+                        const bkuPayload = {
+                            type: 'income', // Pemasukan
+                            amount: this.formPembayaran.nominal,
+                            category: 'Iuran Bulanan',
+                            description: `Iuran ${namaSekolah} (${this.formPembayaran.pertemuan.toUpperCase()})`,
+                            date: this.formPembayaran.tanggal,
+                            related_sekolah_id: this.formPembayaran.sekolah_id, // Menyimpan ID rahasia untuk keperluan sinkronisasi hapus
+                            related_pertemuan: this.formPembayaran.pertemuan    // Menyimpan P1-P6 rahasia
+                        };
+                        await FinanceService.addTransaction(bkuPayload, currentUser.uid);
+
+                        this.closePembayaranModal();
+                        
+                        // Berikan jeda sedikit, lalu alihkan ke tab Kas agar pengguna bisa melihat hasil inputannya
+                        setTimeout(() => {
+                            // Mencari akses ke state activeTab di parent dan mengubahnya
+                            const mainApp = document.querySelector('[x-data="{ activeTab: \'kas\', showActionMenu: false }"]');
+                            if(mainApp && mainApp.__x) {
+                                mainApp.__x.$data.activeTab = 'kas';
+                            }
+                        }, 300);
+
+                    } catch (error) {
+                        alert("Terjadi kesalahan: " + error.message);
+                    } finally {
+                        this.isSubmittingForm = false;
+                    }
                 }
             }));
         });
