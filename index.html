@@ -294,20 +294,21 @@
                             
                             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 pb-24 md:pb-0">
                                 
-                                <!-- FORM INPUT MODAL/KOLOM (BKU) -->
+                                <!-- AREA BACKDROP MODAL TRANSAKSI -->
                                 <div x-show="isTransactionModalOpen" 
                                      x-transition.opacity.duration.300ms 
-                                     class="print:hidden md:hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[60]"
+                                     class="print:hidden md:hidden fixed inset-0 bg-gray-900/60 z-[60]"
                                      @click="isTransactionModalOpen = false" style="display: none;"></div>
 
+                                <!-- FORM INPUT MODAL/KOLOM (BKU) - DIPERBARUI AGAR MULUS -->
                                 <div x-show="isTransactionModalOpen"
                                      x-transition:enter="ease-out duration-300 transform-gpu"
-                                     x-transition:enter-start="translate-y-full"
-                                     x-transition:enter-end="translate-y-0"
+                                     x-transition:enter-start="opacity-0 scale-95 translate-y-8"
+                                     x-transition:enter-end="opacity-100 scale-100 translate-y-0"
                                      x-transition:leave="ease-in duration-200 transform-gpu"
-                                     x-transition:leave-start="translate-y-0"
-                                     x-transition:leave-end="translate-y-full"
-                                     class="print:hidden fixed inset-x-0 bottom-0 z-[70] md:z-auto bg-white p-6 pb-10 md:pb-6 rounded-t-[32px] md:rounded-2xl shadow-[0_-15px_40px_-10px_rgba(0,0,0,0.15)] md:shadow-sm border-t md:border border-gray-100 md:!block md:!transform-none md:!transition-none md:static lg:col-span-1 max-h-[90vh] overflow-y-auto overscroll-contain will-change-transform"
+                                     x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                                     x-transition:leave-end="opacity-0 scale-95 translate-y-8"
+                                     class="print:hidden fixed inset-x-4 bottom-4 z-[70] md:inset-x-0 md:bottom-auto md:z-auto bg-white p-6 md:pb-6 rounded-[32px] md:rounded-2xl shadow-2xl md:shadow-sm border border-gray-100 md:border-t md:!block md:!transform-none md:!transition-none md:!opacity-100 md:static lg:col-span-1 max-h-[85vh] overflow-y-auto will-change-transform"
                                      style="display: none;">
                                     
                                     <div class="md:hidden w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-5 cursor-pointer" @click="isTransactionModalOpen = false"></div>
@@ -794,7 +795,6 @@
                                     </button>
                                 </div>
 
-                                <!-- TOMBOL BARU: Kosongkan BKU -->
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-red-50 rounded-xl border border-red-100 mt-4">
                                     <div>
                                         <div class="font-bold text-red-800">Kosongkan Riwayat BKU</div>
@@ -915,10 +915,7 @@
                 return await Promise.all(batches);
             },
             
-            // FUNGSI BARU: Mengambil kalkulasi total saldo dari bulan-bulan sebelumnya
             async getPreviousBalance(selectedMonthString) {
-                // Query: Semua transaksi di mana atribut "month" lebih kecil secara alfabet/string dari bulan terpilih
-                // Contoh: Jika selectedMonthString "2026-04", ini akan menarik "2026-03", "2026-02", dst.
                 const q = query(collection(db, "transactions"), where("month", "<", selectedMonthString));
                 const snapshot = await getDocs(q);
                 
@@ -981,7 +978,6 @@
 
         document.addEventListener('alpine:init', () => {
 
-            // STATE GLOBAL: KONFIGURASI IURAN
             Alpine.store('config', {
                 nominalIuran: 50000,
                 init() {
@@ -1020,9 +1016,9 @@
             }));
 
             Alpine.data('bkuApp', () => ({
-                isSubmitting: false, isLoadingData: true, message: { text: '', type: '' },
+                isSubmitting: false, isLoadingData: true,
                 transactions: [], unsubscribe: null, editId: null,
-                saldoPindahan: 0, // STATE BARU UNTUK MENYIMPAN SALDO PINDAHAN
+                saldoPindahan: 0,
                 isTransactionModalOpen: false,
                 selectedMonth: (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; })(),
                 form: { type: 'income', date: new Date().toISOString().split('T')[0], category: '', description: '', amount: '' },
@@ -1032,8 +1028,6 @@
                 
                 async fetchTransactions() {
                     this.isLoadingData = true;
-                    
-                    // 1. Fetch Saldo Masa Lalu secara Dinamis
                     try {
                         this.saldoPindahan = await FinanceService.getPreviousBalance(this.selectedMonth);
                     } catch (error) {
@@ -1041,7 +1035,6 @@
                         this.saldoPindahan = 0;
                     }
 
-                    // 2. Fetch / Listen Transaksi Bulan Ini
                     if (this.unsubscribe) this.unsubscribe();
                     this.unsubscribe = FinanceService.listenTransactions(this.selectedMonth, (data, error) => {
                         this.transactions = data; 
@@ -1053,7 +1046,6 @@
                 get totalExpense() { return this.transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + (Number(t.amount) || 0), 0); },
                 
                 get processedTransactions() {
-                    // PERBAIKAN: Menghitung Sisa Kas harian (Running Balance) mulai dari Saldo Pindahan!
                     let currentSaldo = this.saldoPindahan; 
                     return this.transactions.map(trx => {
                         const amount = Number(trx.amount) || 0;
@@ -1061,7 +1053,6 @@
                         return { ...trx, saldo: currentSaldo };
                     });
                 },
-                showMessage(text, type = 'success') { this.message = { text, type }; setTimeout(() => { this.message.text = ''; }, 4000); },
                 editTransaction(trx) { this.editId = trx.id; this.form = { type: trx.type, date: trx.date, category: trx.category, description: trx.description, amount: trx.amount }; this.isTransactionModalOpen = true; },
                 
                 executeDeleteTransaction(id) {
@@ -1088,7 +1079,7 @@
                 },
 
                 async submitTransaction() {
-                    this.isSubmitting = true; this.message.text = '';
+                    this.isSubmitting = true;
                     try {
                         const currentUser = auth.currentUser;
                         if (this.editId) await FinanceService.updateTransaction(this.editId, this.form);
@@ -1097,7 +1088,9 @@
                         this.isTransactionModalOpen = false; this.editId = null;
                         this.form.category = ''; this.form.description = ''; this.form.amount = '';
                         if(this.form.date.substring(0,7) !== this.selectedMonth) { this.selectedMonth = this.form.date.substring(0,7); this.fetchTransactions(); }
-                    } catch (error) { this.showMessage(error.message, 'error'); } 
+                    } catch (error) { 
+                         window.dispatchEvent(new CustomEvent('show-alert', {detail: {title: 'Gagal', message: error.message}}));
+                    } 
                     finally { this.isSubmitting = false; }
                 }
             }));
@@ -1138,7 +1131,7 @@
                             sekolah_id: item.id,
                             pertemuan: fieldPertemuan,
                             tanggal: new Date().toISOString().split('T')[0],
-                            nominal: this.$store.config.nominalIuran // AMBIL DARI GLOBAL STATE
+                            nominal: this.$store.config.nominalIuran 
                         };
                         this.isPembayaranModalOpen = true;
                     } else {
