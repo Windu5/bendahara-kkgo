@@ -154,7 +154,8 @@
 
                     <!-- TAB: KAS (Pemasukan & Pengeluaran) -->
                     <template x-if="activeTab === 'kas'">
-                        <div x-data="bkuApp" @open-add-modal.window="openAddModal()" x-transition.opacity class="h-full">
+                        <!-- Perbaikan Layout: Dihapus h-full agar bisa di-scroll secara alami -->
+                        <div x-data="bkuApp" @open-add-modal.window="openAddModal()" x-transition.opacity>
                             
                             <!-- MODAL KONFIRMASI HAPUS (Modern Confirm) -->
                             <div x-show="confirmModal.open" class="fixed inset-0 z-[100] flex items-center justify-center px-4" style="display: none;">
@@ -175,7 +176,8 @@
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+                            <!-- Perbaikan Layout: pb-24 ditambahkan agar sisa kas bebas dari tumpukan menu bawah -->
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 pb-24 md:pb-0">
                                 
                                 <!-- FORM INPUT MODAL/KOLOM -->
                                 <div x-show="isTransactionModalOpen" 
@@ -249,20 +251,21 @@
                                 </div>
 
                                 <!-- AREA RIWAYAT BKU (TAMPILAN DAFTAR TRANSAKSI) -->
-                                <div class="lg:col-span-2 flex-1 pb-4 md:pb-0 h-full">
-                                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full max-h-[85vh] md:max-h-full overflow-hidden">
+                                <div class="lg:col-span-2 flex-1">
+                                    <!-- Perbaikan Layout: overflow-hidden & h-full dihapus -->
+                                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col relative">
                                         
                                         <!-- Header Daftar Transaksi & Filter Bulan -->
-                                        <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-10 shrink-0">
-                                            <h3 class="font-bold text-gray-800 text-lg">Riwayat BKU</h3>
+                                        <div class="p-4 md:p-5 border-b border-gray-100 flex justify-between items-center bg-white rounded-t-2xl z-20 shrink-0">
+                                            <h3 class="font-bold text-gray-800 text-base md:text-lg">Riwayat BKU</h3>
                                             <div class="relative">
                                                 <input type="month" x-model="selectedMonth" @change="fetchTransactions()" 
-                                                    class="px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer font-medium">
+                                                    class="px-3 py-1.5 text-xs md:text-sm border border-gray-200 rounded-lg bg-gray-50 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer font-medium">
                                             </div>
                                         </div>
 
                                         <!-- Konten Daftar Transaksi -->
-                                        <div class="flex-1 overflow-y-auto bg-gray-50/30">
+                                        <div class="bg-gray-50/30 pb-2">
                                             <!-- Loader saat menarik data -->
                                             <div x-show="isLoadingData" class="flex justify-center items-center p-10">
                                                 <div class="animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
@@ -270,31 +273,36 @@
 
                                             <!-- State Kosong -->
                                             <template x-if="!isLoadingData && transactions.length === 0">
-                                                <div class="flex flex-col items-center justify-center p-12 text-gray-400 h-full">
+                                                <div class="flex flex-col items-center justify-center p-12 text-gray-400">
                                                     <svg class="w-16 h-16 mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                                                    <p class="font-medium text-gray-500">Tidak ada transaksi bulan ini</p>
-                                                    <p class="text-sm mt-1">Silakan input melalui form Catat Transaksi</p>
+                                                    <p class="font-medium text-gray-500 text-sm md:text-base">Tidak ada transaksi bulan ini</p>
+                                                    <p class="text-xs md:text-sm mt-1">Silakan input melalui form Catat Transaksi</p>
                                                 </div>
                                             </template>
 
-                                            <!-- Tampilan List Transaksi (Kompak/Tabel) -->
+                                            <!-- Tampilan List Transaksi (Kompak/Tabel + Nomor) -->
                                             <template x-if="!isLoadingData && transactions.length > 0">
-                                                <div class="w-full overflow-x-auto bg-white">
+                                                <div class="w-full overflow-x-auto">
                                                     <table class="w-full text-left border-collapse">
-                                                        <thead class="bg-gray-100/80 sticky top-0 z-10">
-                                                            <tr class="text-[10px] md:text-xs text-gray-500 uppercase tracking-wider border-y border-gray-200">
-                                                                <th class="px-3 py-2 font-semibold w-12 md:w-16">Tgl</th>
+                                                        <thead class="bg-gray-100/80">
+                                                            <tr class="text-[9px] md:text-[11px] text-gray-500 uppercase tracking-wider border-y border-gray-200">
+                                                                <th class="px-2 py-2 font-semibold text-center w-8">No</th>
+                                                                <th class="px-2 py-2 font-semibold w-12 md:w-16">Tgl</th>
                                                                 <th class="px-2 py-2 font-semibold">Uraian</th>
-                                                                <th class="px-3 py-2 font-semibold text-right">Nominal</th>
-                                                                <th class="px-2 py-2 font-semibold text-center w-16">Aksi</th>
+                                                                <th class="px-2 py-2 font-semibold text-right">Nominal</th>
+                                                                <th class="px-2 py-2 font-semibold text-center w-14">Aksi</th>
                                                             </tr>
                                                         </thead>
-                                                        <tbody class="divide-y divide-gray-100">
+                                                        <tbody class="divide-y divide-gray-100 bg-white">
                                                             <template x-for="(trx, index) in transactions" :key="trx.id">
                                                                 <tr class="hover:bg-gray-50/80 transition-colors">
+                                                                    <!-- Kolom No (Dibalik: Terbaru = Terbesar, Lama = 1) -->
+                                                                    <td class="px-1 py-2 align-top text-center">
+                                                                        <div class="text-[10px] md:text-[11px] font-semibold text-gray-500 mt-1" x-text="transactions.length - index"></div>
+                                                                    </td>
                                                                     <!-- Kolom Tanggal (Format DD/MM) -->
-                                                                    <td class="px-3 py-2.5 align-top">
-                                                                        <div class="text-[11px] md:text-xs font-semibold text-gray-500" x-text="trx.date.substring(8, 10) + '/' + trx.date.substring(5, 7)"></div>
+                                                                    <td class="px-2 py-2 align-top">
+                                                                        <div class="text-[10px] md:text-[11px] font-semibold text-gray-500 mt-1" x-text="trx.date.substring(8, 10) + '/' + trx.date.substring(5, 7)"></div>
                                                                     </td>
                                                                     <!-- Kolom Uraian & Kategori -->
                                                                     <td class="px-2 py-2.5 align-top">
@@ -302,19 +310,19 @@
                                                                         <div class="text-[9px] md:text-[10px] text-gray-400 font-semibold uppercase mt-0.5" x-text="trx.category"></div>
                                                                     </td>
                                                                     <!-- Kolom Nominal -->
-                                                                    <td class="px-3 py-2.5 align-top text-right whitespace-nowrap">
-                                                                        <div class="text-xs md:text-sm font-extrabold" :class="trx.type === 'income' ? 'text-green-600' : 'text-red-600'">
+                                                                    <td class="px-2 py-2 align-top text-right whitespace-nowrap">
+                                                                        <div class="text-[11px] md:text-[12px] font-extrabold mt-1" :class="trx.type === 'income' ? 'text-green-600' : 'text-red-600'">
                                                                             <span x-text="trx.type === 'income' ? '+' : '-'"></span>
                                                                             <span x-text="formatRupiah(trx.amount)"></span>
                                                                         </div>
                                                                     </td>
                                                                     <!-- Kolom Aksi -->
-                                                                    <td class="px-2 py-2.5 align-top text-center whitespace-nowrap">
-                                                                        <div class="flex items-center justify-center gap-1.5 md:gap-2">
-                                                                            <button @click="editTransaction(trx)" class="text-blue-500 hover:text-blue-700 bg-blue-50 p-1.5 md:p-2 rounded-md transition active:scale-95" title="Edit">
+                                                                    <td class="px-2 py-2 align-top text-center whitespace-nowrap">
+                                                                        <div class="flex items-center justify-center gap-1.5 mt-0.5">
+                                                                            <button @click="editTransaction(trx)" class="text-blue-500 hover:text-blue-700 bg-blue-50 p-1 md:p-1.5 rounded transition active:scale-95" title="Edit">
                                                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                                                             </button>
-                                                                            <button @click="confirmDelete(trx.id)" class="text-red-500 hover:text-red-700 bg-red-50 p-1.5 md:p-2 rounded-md transition active:scale-95" title="Hapus">
+                                                                            <button @click="confirmDelete(trx.id)" class="text-red-500 hover:text-red-700 bg-red-50 p-1 md:p-1.5 rounded transition active:scale-95" title="Hapus">
                                                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                                                             </button>
                                                                         </div>
@@ -327,20 +335,21 @@
                                             </template>
                                         </div>
 
-                                        <!-- Footer/Ringkasan Bawah (Kompak) -->
-                                        <div class="p-3 md:p-4 bg-gray-50 border-t border-gray-200 shrink-0">
+                                        <!-- Footer/Ringkasan Bawah (Tidak lagi sticky) -->
+                                        <!-- Perbaikan Layout: Dibuat normal di bawah tabel agar bisa di-scroll utuh -->
+                                        <div class="p-3 md:p-4 bg-white border-t border-gray-200 shrink-0 rounded-b-2xl">
                                             <div class="flex justify-between items-center mb-1">
-                                                <span class="text-[11px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Pemasukan</span>
-                                                <span class="text-xs md:text-sm font-extrabold text-green-600" x-text="'+ ' + formatRupiah(totalIncome)"></span>
+                                                <span class="text-[10px] md:text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Total Pemasukan</span>
+                                                <span class="text-[11px] md:text-xs font-extrabold text-green-600" x-text="'+ ' + formatRupiah(totalIncome)"></span>
                                             </div>
                                             <div class="flex justify-between items-center mb-1.5">
-                                                <span class="text-[11px] md:text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Pengeluaran</span>
-                                                <span class="text-xs md:text-sm font-extrabold text-red-600" x-text="'- ' + formatRupiah(totalExpense)"></span>
+                                                <span class="text-[10px] md:text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Total Pengeluaran</span>
+                                                <span class="text-[11px] md:text-xs font-extrabold text-red-600" x-text="'- ' + formatRupiah(totalExpense)"></span>
                                             </div>
                                             <div class="h-px w-full bg-gray-200 my-1.5 md:my-2"></div>
                                             <div class="flex justify-between items-center">
                                                 <span class="text-xs md:text-sm font-bold text-gray-800">Sisa Kas</span>
-                                                <span class="text-sm md:text-lg font-black text-blue-700" x-text="formatRupiah(totalIncome - totalExpense)"></span>
+                                                <span class="text-sm md:text-base font-black text-blue-700" x-text="formatRupiah(totalIncome - totalExpense)"></span>
                                             </div>
                                         </div>
 
