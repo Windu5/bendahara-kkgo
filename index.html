@@ -256,7 +256,7 @@
                                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col relative">
                                         
                                         <!-- Header Daftar Transaksi & Filter Bulan -->
-                                        <div class="p-4 md:p-5 border-b border-gray-100 flex justify-between items-center bg-white rounded-t-2xl z-20 shrink-0">
+                                        <div class="sticky -top-4 md:-top-8 pt-4 md:pt-8 h-20 md:h-[104px] px-4 md:px-5 border-b border-gray-100 flex justify-between items-center bg-white/95 backdrop-blur-md rounded-t-2xl z-30 shrink-0 shadow-sm">
                                             <h3 class="font-bold text-gray-800 text-base md:text-lg">Riwayat BKU</h3>
                                             <div class="relative">
                                                 <input type="month" x-model="selectedMonth" @change="fetchTransactions()" 
@@ -282,9 +282,9 @@
 
                                             <!-- Tampilan List Transaksi (Kompak/Tabel + Nomor) -->
                                             <template x-if="!isLoadingData && transactions.length > 0">
-                                                <div class="w-full overflow-x-auto">
+                                                <div class="w-full">
                                                     <table class="w-full text-left border-collapse">
-                                                        <thead class="bg-gray-100/80">
+                                                        <thead class="sticky top-16 md:top-[72px] z-20 bg-gray-100/95 backdrop-blur-md shadow-sm">
                                                             <tr class="text-[9px] md:text-[11px] text-gray-500 uppercase tracking-wider border-y border-gray-200">
                                                                 <th class="px-2 py-2 font-semibold text-center w-8">No</th>
                                                                 <th class="px-2 py-2 font-semibold w-12 md:w-16">Tgl</th>
