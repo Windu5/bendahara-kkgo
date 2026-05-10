@@ -8,9 +8,13 @@
     <style>
         /* Standar CSS Khusus untuk Mode Cetak (Print) */
         @media print {
-            body { background-color: white !important; }
+            body { 
+                background-color: white !important; 
+                /* Efek Zoom Out agar tabel mengecil dan memuat lebih banyak data di kertas */
+                zoom: 0.80; 
+            }
             /* Menyembunyikan elemen UI yang tidak perlu di kertas laporan */
-            .no-print, header, nav, .md\\:hidden.fixed.bottom-0 { 
+            header, nav { 
                 display: none !important; 
             }
             /* Menyesuaikan area utama agar full di kertas */
@@ -74,7 +78,7 @@
             <div x-data="{ activeTab: 'kas' }" class="w-full h-screen bg-gray-50 flex flex-col overflow-hidden">
                 
                 <!-- 1. TOP NAVIGATION DESKTOP -->
-                <header class="no-print hidden md:block bg-white w-full border-b border-gray-200 z-40 px-8 pt-5 shrink-0">
+                <header class="print:hidden hidden md:block bg-white w-full border-b border-gray-200 z-40 px-8 pt-5 shrink-0">
                     <div class="flex justify-between items-center mb-6 max-w-7xl mx-auto">
                         <div class="flex items-center gap-4">
                             <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-sm">
@@ -117,7 +121,7 @@
                 </header>
 
                 <!-- 1.1 MOBILE TOP NAVIGATION -->
-                <header class="no-print md:hidden w-full bg-white z-40 border-b border-gray-100 px-4 py-3 flex justify-between items-center shadow-sm shrink-0">
+                <header class="print:hidden md:hidden w-full bg-white z-40 border-b border-gray-100 px-4 py-3 flex justify-between items-center shadow-sm shrink-0">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-sm shrink-0">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
@@ -133,7 +137,7 @@
                 </header>
 
                 <!-- 2. MOBILE BOTTOM NAVIGATION -->
-                <nav class="no-print md:hidden fixed bottom-0 w-full bg-white border-t border-gray-200 flex justify-between items-center px-2 pb-3 pt-2 z-50 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)]">
+                <nav class="print:hidden md:hidden fixed bottom-0 w-full bg-white border-t border-gray-200 flex justify-between items-center px-2 pb-3 pt-2 z-50 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)]">
                     <button @click="activeTab = 'home'" class="flex flex-col items-center gap-1 w-1/5" :class="activeTab === 'home' ? 'text-blue-600' : 'text-gray-400'">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                         <span class="text-[10px] font-medium">Home</span>
@@ -181,7 +185,7 @@
                         <div x-data="bkuApp" @open-add-modal.window="openAddModal()" x-transition.opacity>
                             
                             <!-- MODAL KONFIRMASI HAPUS (Modern Confirm) -->
-                            <div x-show="confirmModal.open" class="no-print fixed inset-0 z-[100] flex items-center justify-center px-4" style="display: none;">
+                            <div x-show="confirmModal.open" class="print:hidden fixed inset-0 z-[100] flex items-center justify-center px-4" style="display: none;">
                                 <div class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm" @click="confirmModal.open = false"></div>
                                 <div class="bg-white rounded-2xl p-6 shadow-xl z-10 max-w-sm w-full transform transition-all">
                                     <div class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4">
@@ -204,11 +208,11 @@
                                 <!-- FORM INPUT MODAL/KOLOM -->
                                 <div x-show="isTransactionModalOpen" 
                                      x-transition.opacity 
-                                     class="no-print md:hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[60]"
+                                     class="print:hidden md:hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[60]"
                                      @click="isTransactionModalOpen = false"></div>
 
                                 <div :class="isTransactionModalOpen ? 'translate-y-0 shadow-[0_-20px_50px_-10px_rgba(0,0,0,0.2)]' : 'translate-y-full md:translate-y-0'"
-                                     class="no-print fixed inset-x-0 bottom-0 z-[70] md:z-auto bg-white p-6 pb-10 md:pb-6 rounded-t-[32px] md:rounded-2xl md:shadow-sm border-t md:border border-gray-100 transition-transform duration-300 ease-out md:block lg:col-span-1 md:static max-h-[90vh] overflow-y-auto">
+                                     class="print:hidden fixed inset-x-0 bottom-0 z-[70] md:z-auto bg-white p-6 pb-10 md:pb-6 rounded-t-[32px] md:rounded-2xl md:shadow-sm border-t md:border border-gray-100 transition-transform duration-300 ease-out md:block lg:col-span-1 md:static max-h-[90vh] overflow-y-auto">
                                     
                                     <div class="md:hidden w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-5 cursor-pointer" @click="isTransactionModalOpen = false"></div>
                                     
@@ -277,20 +281,20 @@
                                     
                                     <!-- FORMAT CETAK BKU STANDAR (HANYA TAMPIL SAAT PRINT) -->
                                     <div class="hidden print:block w-full bg-white pb-10">
-                                        <div class="text-center mb-6">
-                                            <h2 class="text-2xl font-bold text-black uppercase tracking-wide underline decoration-2 underline-offset-4">Laporan Buku Kas Umum (BKU)</h2>
-                                            <p class="text-black font-semibold mt-2 text-lg" x-text="'Periode Bulan: ' + selectedMonth"></p>
+                                        <div class="mb-4">
+                                            <h2 class="text-xl font-bold text-black uppercase">Laporan Buku Kas Umum (BKU)</h2>
+                                            <p class="text-black font-semibold mt-1 text-base" x-text="'Periode Bulan: ' + selectedMonth"></p>
                                         </div>
                                         
                                         <table class="w-full border-collapse border border-black text-black">
                                             <thead>
-                                                <tr class="bg-gray-100 text-sm uppercase">
-                                                    <th class="border border-black p-2 text-center w-12">No</th>
-                                                    <th class="border border-black p-2 text-center w-28">Tgl</th>
-                                                    <th class="border border-black p-2 text-center">Uraian</th>
-                                                    <th class="border border-black p-2 text-center w-32">Pemasukan</th>
-                                                    <th class="border border-black p-2 text-center w-32">Pengeluaran</th>
-                                                    <th class="border border-black p-2 text-center w-36">Saldo</th>
+                                                <tr class="bg-gray-100 text-sm">
+                                                    <th class="border border-black p-2 text-center w-10">NO</th>
+                                                    <th class="border border-black p-2 text-center w-24">TGL</th>
+                                                    <th class="border border-black p-2 text-center">URAIAN</th>
+                                                    <th class="border border-black p-2 text-center w-28">pemasukan</th>
+                                                    <th class="border border-black p-2 text-center w-28">pengeluaran</th>
+                                                    <th class="border border-black p-2 text-center w-32">saldo</th>
                                                 </tr>
                                             </thead>
                                             <tbody class="text-sm">
@@ -328,7 +332,7 @@
                                         
                                         <!-- Header Daftar Transaksi & Filter Bulan + ICON CETAK -->
                                         <!-- print:hidden agar header filter ini hilang saat di print -->
-                                        <div class="sticky -top-4 md:-top-8 pt-4 md:pt-8 h-14 md:h-[88px] px-4 md:px-5 border-b border-gray-100 flex justify-between items-center bg-white/95 backdrop-blur-md rounded-t-2xl z-30 shrink-0 shadow-sm print:hidden">
+                                        <div class="sticky top-0 z-30 pt-4 h-16 md:h-[72px] px-4 md:px-5 border-b border-gray-100 flex justify-between items-center bg-white/95 backdrop-blur-md rounded-t-2xl shrink-0 shadow-sm print:hidden">
                                             <h3 class="font-bold text-gray-800 text-base md:text-lg">Riwayat BKU</h3>
                                             
                                             <!-- Wrapper Flex Untuk Filter & Tombol Cetak -->
@@ -347,13 +351,13 @@
                                         <!-- Konten Daftar Transaksi -->
                                         <div class="bg-gray-50/30 pb-2">
                                             <!-- Loader saat menarik data -->
-                                            <div x-show="isLoadingData" class="flex justify-center items-center p-10 no-print">
+                                            <div x-show="isLoadingData" class="flex justify-center items-center p-10 print:hidden">
                                                 <div class="animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
                                             </div>
 
                                             <!-- State Kosong -->
                                             <template x-if="!isLoadingData && transactions.length === 0">
-                                                <div class="flex flex-col items-center justify-center p-12 text-gray-400 no-print">
+                                                <div class="flex flex-col items-center justify-center p-12 text-gray-400 print:hidden">
                                                     <svg class="w-16 h-16 mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                                                     <p class="font-medium text-gray-500 text-sm md:text-base">Tidak ada transaksi bulan ini</p>
                                                     <p class="text-xs md:text-sm mt-1">Silakan input melalui form Catat Transaksi</p>
@@ -364,14 +368,14 @@
                                             <template x-if="!isLoadingData && transactions.length > 0">
                                                 <div class="w-full">
                                                     <table class="w-full text-left border-collapse">
-                                                        <thead class="sticky top-10 md:top-14 z-20 bg-gray-100/95 backdrop-blur-md shadow-sm">
+                                                        <thead class="sticky top-16 md:top-[72px] z-20 bg-gray-100/95 backdrop-blur-md shadow-sm">
                                                             <tr class="text-[9px] md:text-[11px] text-gray-500 uppercase tracking-wider border-y border-gray-200">
                                                                 <th class="px-2 py-2 font-semibold text-center w-8">No</th>
                                                                 <th class="px-2 py-2 font-semibold w-12 md:w-16">Tgl</th>
                                                                 <th class="px-2 py-2 font-semibold">Uraian</th>
                                                                 <th class="px-2 py-2 font-semibold text-right">Nominal</th>
-                                                                <!-- Tambahkan no-print agar header Aksi hilang saat dicetak -->
-                                                                <th class="px-2 py-2 font-semibold text-center w-14 no-print">Aksi</th>
+                                                                <!-- Tambahkan print:hidden agar header Aksi hilang saat dicetak -->
+                                                                <th class="px-2 py-2 font-semibold text-center w-14 print:hidden">Aksi</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody class="divide-y divide-gray-100 bg-white">
@@ -397,8 +401,8 @@
                                                                             <span x-text="formatRupiah(trx.amount)"></span>
                                                                         </div>
                                                                     </td>
-                                                                    <!-- Kolom Aksi -> ditambahkan no-print agar tombol edit/hapus hilang di kertas -->
-                                                                    <td class="px-2 py-2 align-top text-center whitespace-nowrap no-print">
+                                                                    <!-- Kolom Aksi -> ditambahkan print:hidden agar tombol edit/hapus hilang di kertas -->
+                                                                    <td class="px-2 py-2 align-top text-center whitespace-nowrap print:hidden">
                                                                         <div class="flex items-center justify-center gap-1.5 mt-0.5">
                                                                             <button @click="editTransaction(trx)" class="text-blue-500 hover:text-blue-700 bg-blue-50 p-1 md:p-1.5 rounded transition active:scale-95" title="Edit">
                                                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
