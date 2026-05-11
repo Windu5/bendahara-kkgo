@@ -21,16 +21,20 @@
                 visibility: hidden !important;
                 height: 0 !important;
                 border: none !important;
+                box-shadow: none !important;
             }
             
             @page {
                 size: portrait;
                 margin: 1.5cm;
             }
-            body, html { 
+            
+            /* PENGHANCUR KOTAK ABU-ABU: Memaksa seluruh kanvas kertas menjadi putih bersih */
+            body, html, main, .bg-gray-50, .min-h-screen, .h-screen { 
                 background-color: white !important; 
                 height: auto !important; 
             }
+            
             /* Membuka kunci tinggi layar agar bisa multi-halaman */
             .h-screen, .min-h-screen {
                 height: auto !important;
@@ -54,6 +58,7 @@
                 -webkit-print-color-adjust: exact !important; 
                 print-color-adjust: exact !important; 
                 box-shadow: none !important; /* Mencegah shadow bocor saat dicetak */
+                text-shadow: none !important; /* Mencegah efek bayangan pada teks */
             }
             .overflow-y-auto { overflow: visible !important; max-height: none !important; }
             
@@ -353,10 +358,10 @@
                                                 <label class="block text-xs font-semibold mb-1 text-gray-500 uppercase">Kategori</label>
                                                 <select x-model="form.category" required class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none text-sm transition-all">
                                                     <option value="" disabled>Pilih Kategori...</option>
-                                                    <option value="Iuran Bulanan">Iuran Bulanan</option>
-                                                    <option value="Dana BOS">Dana BOS</option>
-                                                    <option value="Operasional">Operasional Harian</option>
-                                                    <option value="Honor">Honorarium</option>
+                                                    <option value="Konsumsi">Konsumsi</option>
+                                                    <option value="Narasumber">Narasumber</option>
+                                                    <option value="ATK">ATK</option>
+                                                    <option value="Sumbangan">Sumbangan</option>
                                                     <option value="Lainnya">Lain-lain</option>
                                                 </select>
                                             </div>
@@ -384,9 +389,11 @@
                                     
                                     <!-- FORMAT CETAK BKU STANDAR -->
                                     <div class="print-only w-full bg-white pb-6">
-                                        <div class="mb-2 text-center">
+                                        <div class="mb-4 text-center leading-tight">
                                             <h2 class="text-lg font-bold text-black uppercase tracking-wide">Laporan Buku Kas Umum (BKU)</h2>
-                                            <p class="text-black font-semibold mt-0.5 text-sm" x-text="'Periode Bulan: ' + formatBulanTahun(selectedMonth)"></p>
+                                            <h3 class="text-[15px] font-bold text-black uppercase mt-0.5">Kelompok Kerja Guru Olahraga (KKGO)</h3>
+                                            <h3 class="text-[15px] font-bold text-black uppercase mt-0.5">Kecamatan Nanga Mahap</h3>
+                                            <p class="text-black font-semibold mt-1.5 text-sm italic" x-text="'Periode Bulan: ' + formatBulanTahun(selectedMonth)"></p>
                                         </div>
                                         
                                         <table class="w-full border-collapse border border-black text-black mt-2">
@@ -681,9 +688,11 @@
 
                             <!-- FORMAT CETAK IURAN STANDAR -->
                             <div class="print-only w-full bg-white pb-6">
-                                <div class="mb-2 text-center">
+                                <div class="mb-4 text-center leading-tight">
                                     <h2 class="text-lg font-bold text-black uppercase tracking-wide">Laporan Daftar Iuran Sekolah</h2>
-                                    <p class="text-black font-semibold mt-0.5 text-sm">Rekapitulasi Pembayaran Pertemuan</p>
+                                    <h3 class="text-[15px] font-bold text-black uppercase mt-0.5">Kelompok Kerja Guru Olahraga (KKGO)</h3>
+                                    <h3 class="text-[15px] font-bold text-black uppercase mt-0.5">Kecamatan Nanga Mahap</h3>
+                                    <p class="text-black font-semibold mt-1.5 text-sm italic">Rekapitulasi Pembayaran Pertemuan</p>
                                 </div>
                                 
                                 <table class="w-full border-collapse border border-black text-black mt-2">
