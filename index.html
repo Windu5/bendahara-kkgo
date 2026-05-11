@@ -12,7 +12,17 @@
         }
         @media print {
             .print-only { display: block !important; }
-            .no-print { display: none !important; }
+            
+            /* PENGHANCUR MUTLAK: Memaksa Form & UI hilang dengan prioritas tertinggi */
+            html body .no-print, 
+            html body .print\:hidden { 
+                display: none !important; 
+                opacity: 0 !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                border: none !important;
+            }
+            
             @page {
                 size: portrait;
                 margin: 1.5cm;
@@ -43,6 +53,7 @@
             * { 
                 -webkit-print-color-adjust: exact !important; 
                 print-color-adjust: exact !important; 
+                box-shadow: none !important; /* Mencegah shadow bocor saat dicetak */
             }
             .overflow-y-auto { overflow: visible !important; max-height: none !important; }
             
@@ -100,13 +111,13 @@
         </div>
 
         <!-- LOADING STATE -->
-        <div x-show="loading" class="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div x-show="loading" class="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center print:hidden">
             <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
         </div>
 
         <!-- LOGIN PAGE -->
         <template x-if="!user">
-            <div class="flex-grow flex items-center justify-center p-4">
+            <div class="flex-grow flex items-center justify-center p-4 print:hidden">
                 <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md border border-gray-100">
                     <h2 class="text-2xl font-bold mb-6 text-center text-blue-600">Login Bendahara</h2>
 
@@ -139,7 +150,7 @@
             <div x-data="{ activeTab: 'kas', showActionMenu: false }" class="w-full h-screen bg-gray-50 flex flex-col overflow-hidden">
                 
                 <!-- ACTION MENU POPUP -->
-                <div x-show="showActionMenu" class="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:p-4 pb-24 px-4" style="display: none;">
+                <div x-show="showActionMenu" class="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:p-4 pb-24 px-4 print:hidden" style="display: none;">
                     <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity" @click="showActionMenu = false" x-show="showActionMenu" x-transition.opacity.duration.300ms></div>
                     
                     <div class="bg-white rounded-3xl p-6 shadow-2xl z-10 w-full max-w-sm transform will-change-transform"
@@ -297,10 +308,10 @@
                                 <!-- AREA BACKDROP MODAL TRANSAKSI -->
                                 <div x-show="isTransactionModalOpen" 
                                      x-transition.opacity.duration.300ms 
-                                     class="print:hidden md:hidden fixed inset-0 bg-gray-900/60 z-[60]"
+                                     class="no-print md:hidden fixed inset-0 bg-gray-900/60 z-[60]"
                                      @click="isTransactionModalOpen = false" style="display: none;"></div>
 
-                                <!-- FORM INPUT MODAL/KOLOM (BKU) - DIPERBARUI AGAR MULUS -->
+                                <!-- FORM INPUT MODAL/KOLOM (BKU) -->
                                 <div x-show="isTransactionModalOpen"
                                      x-transition:enter="ease-out duration-300 transform-gpu"
                                      x-transition:enter-start="opacity-0 scale-95 translate-y-8"
@@ -308,7 +319,7 @@
                                      x-transition:leave="ease-in duration-200 transform-gpu"
                                      x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                                      x-transition:leave-end="opacity-0 scale-95 translate-y-8"
-                                     class="print:hidden fixed inset-x-4 bottom-4 z-[70] md:inset-x-0 md:bottom-auto md:z-auto bg-white p-6 md:pb-6 rounded-[32px] md:rounded-2xl shadow-2xl md:shadow-sm border border-gray-100 md:border-t md:!block md:!transform-none md:!transition-none md:!opacity-100 md:static lg:col-span-1 max-h-[85vh] overflow-y-auto will-change-transform"
+                                     class="no-print print:hidden fixed inset-x-4 bottom-4 z-[70] md:inset-x-0 md:bottom-auto md:z-auto bg-white p-6 md:pb-6 rounded-[32px] md:rounded-2xl shadow-2xl md:shadow-sm border border-gray-100 md:border-t md:!block md:!transform-none md:!transition-none md:!opacity-100 md:static lg:col-span-1 max-h-[85vh] overflow-y-auto will-change-transform"
                                      style="display: none;">
                                     
                                     <div class="md:hidden w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-5 cursor-pointer" @click="isTransactionModalOpen = false"></div>
@@ -372,58 +383,94 @@
                                 <div class="lg:col-span-2 flex-1">
                                     
                                     <!-- FORMAT CETAK BKU STANDAR -->
-                                    <div class="print-only w-full bg-white pb-10">
-                                        <div class="mb-4 text-center">
-                                            <h2 class="text-xl font-bold text-black">Laporan Buku Kas Umum (BKU)</h2>
-                                            <p class="text-black font-semibold mt-1 text-base" x-text="'Periode Bulan: ' + selectedMonth"></p>
+                                    <div class="print-only w-full bg-white pb-6">
+                                        <div class="mb-2 text-center">
+                                            <h2 class="text-lg font-bold text-black uppercase tracking-wide">Laporan Buku Kas Umum (BKU)</h2>
+                                            <p class="text-black font-semibold mt-0.5 text-sm" x-text="'Periode Bulan: ' + formatBulanTahun(selectedMonth)"></p>
                                         </div>
                                         
-                                        <table class="w-full border-collapse border border-black text-black mt-4">
+                                        <table class="w-full border-collapse border border-black text-black mt-2">
                                             <thead>
-                                                <tr class="text-sm">
-                                                    <th class="border border-black p-2 text-center w-10">NO</th>
-                                                    <th class="border border-black p-2 text-center w-24">TGL</th>
-                                                    <th class="border border-black p-2 text-center">URAIAN</th>
-                                                    <th class="border border-black p-2 text-center w-28">pemasukan</th>
-                                                    <th class="border border-black p-2 text-center w-28">pengeluaran</th>
-                                                    <th class="border border-black p-2 text-center w-32">saldo</th>
+                                                <tr class="text-[11px] bg-gray-50">
+                                                    <th class="border border-black py-1 px-1.5 text-center w-8">NO</th>
+                                                    <th class="border border-black py-1 px-1.5 text-center w-20">TGL</th>
+                                                    <th class="border border-black py-1 px-1.5 text-center">URAIAN</th>
+                                                    <th class="border border-black py-1 px-1.5 text-center w-24">PEMASUKAN</th>
+                                                    <th class="border border-black py-1 px-1.5 text-center w-24">PENGELUARAN</th>
+                                                    <th class="border border-black py-1 px-1.5 text-center w-28">SALDO</th>
                                                 </tr>
                                             </thead>
-                                            <tbody class="text-sm">
+                                            <tbody class="text-[11px]">
                                                 <!-- Baris Cetak Saldo Pindahan Jika Ada -->
                                                 <template x-if="saldoPindahan !== 0 || transactions.length > 0">
                                                     <tr class="bg-gray-100 font-semibold" x-show="saldoPindahan !== 0">
-                                                        <td class="border border-black p-2 text-center">-</td>
-                                                        <td class="border border-black p-2 text-center">-</td>
-                                                        <td class="border border-black p-2">SALDO PINDAHAN BULAN SEBELUMNYA</td>
-                                                        <td class="border border-black p-2 text-right" x-text="saldoPindahan > 0 ? formatRupiah(saldoPindahan) : '-'"></td>
-                                                        <td class="border border-black p-2 text-right" x-text="saldoPindahan < 0 ? formatRupiah(Math.abs(saldoPindahan)) : '-'"></td>
-                                                        <td class="border border-black p-2 text-right font-bold" x-text="formatRupiah(saldoPindahan)"></td>
+                                                        <td class="border border-black py-1 px-1.5 text-center">-</td>
+                                                        <td class="border border-black py-1 px-1.5 text-center">-</td>
+                                                        <td class="border border-black py-1 px-1.5">SALDO PINDAHAN BULAN SEBELUMNYA</td>
+                                                        <td class="border border-black py-1 px-1.5 text-right" x-text="saldoPindahan > 0 ? formatRupiah(saldoPindahan) : '-'"></td>
+                                                        <td class="border border-black py-1 px-1.5 text-right" x-text="saldoPindahan < 0 ? formatRupiah(Math.abs(saldoPindahan)) : '-'"></td>
+                                                        <td class="border border-black py-1 px-1.5 text-right font-bold" x-text="formatRupiah(saldoPindahan)"></td>
                                                     </tr>
                                                 </template>
 
                                                 <template x-for="(trx, index) in processedTransactions" :key="trx.id">
                                                     <tr>
-                                                        <td class="border border-black p-2 text-center" x-text="index + 1"></td>
-                                                        <td class="border border-black p-2 text-center" x-text="trx.date.substring(8, 10) + '/' + trx.date.substring(5, 7) + '/' + trx.date.substring(0, 4)"></td>
-                                                        <td class="border border-black p-2" x-text="trx.description"></td>
-                                                        <td class="border border-black p-2 text-right" x-text="trx.type === 'income' ? formatRupiah(trx.amount) : '-'"></td>
-                                                        <td class="border border-black p-2 text-right" x-text="trx.type === 'expense' ? formatRupiah(trx.amount) : '-'"></td>
-                                                        <td class="border border-black p-2 text-right font-bold" x-text="formatRupiah(trx.saldo)"></td>
+                                                        <td class="border border-black py-1 px-1.5 text-center" x-text="index + 1"></td>
+                                                        <td class="border border-black py-1 px-1.5 text-center" x-text="trx.date.substring(8, 10) + '/' + trx.date.substring(5, 7) + '/' + trx.date.substring(0, 4)"></td>
+                                                        <td class="border border-black py-1 px-1.5 leading-tight" x-text="trx.description"></td>
+                                                        <td class="border border-black py-1 px-1.5 text-right whitespace-nowrap" x-text="trx.type === 'income' ? formatRupiah(trx.amount) : '-'"></td>
+                                                        <td class="border border-black py-1 px-1.5 text-right whitespace-nowrap" x-text="trx.type === 'expense' ? formatRupiah(trx.amount) : '-'"></td>
+                                                        <td class="border border-black py-1 px-1.5 text-right font-bold whitespace-nowrap" x-text="formatRupiah(trx.saldo)"></td>
                                                     </tr>
                                                 </template>
 
                                                 <template x-if="processedTransactions.length === 0 && saldoPindahan === 0">
                                                     <tr>
-                                                        <td colspan="6" class="border border-black p-4 text-center italic text-gray-500">Tidak ada transaksi pada bulan ini.</td>
+                                                        <td colspan="6" class="border border-black p-3 text-center italic text-gray-500">Tidak ada transaksi pada bulan ini.</td>
                                                     </tr>
                                                 </template>
                                             </tbody>
                                         </table>
+
+                                        <!-- Ringkasan dan Tanda Tangan Cetak BKU -->
+                                        <div class="mt-8 flex justify-between items-end text-black w-full" style="page-break-inside: avoid;">
+                                            <!-- Kiri: Ringkasan Total Cetak -->
+                                            <div class="w-72 text-[12px]">
+                                                <table class="w-full">
+                                                    <tr>
+                                                        <td class="font-semibold py-1">Total Pemasukan</td>
+                                                        <td class="py-1 w-4 text-center">:</td>
+                                                        <td class="font-semibold py-1 text-right" x-text="formatRupiah(totalIncome + (saldoPindahan > 0 ? saldoPindahan : 0))"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="font-semibold py-1">Total Pengeluaran</td>
+                                                        <td class="py-1 w-4 text-center">:</td>
+                                                        <td class="font-semibold py-1 text-right" x-text="formatRupiah(totalExpense + (saldoPindahan < 0 ? Math.abs(saldoPindahan) : 0))"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="3" class="border-b border-black"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="font-bold py-1">Sisa Kas / Total</td>
+                                                        <td class="py-1 w-4 text-center">:</td>
+                                                        <td class="font-bold py-1 text-right" x-text="formatRupiah(saldoPindahan + totalIncome - totalExpense)"></td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+
+                                            <!-- Kanan: Tanda Tangan -->
+                                            <div class="text-center w-56 text-[12px]">
+                                                <p>Bendahara</p>
+                                                <div class="h-16 flex items-center justify-center text-gray-400 italic">
+                                                    Ttd
+                                                </div>
+                                                <p class="font-bold underline">Tika Zinawati, S.Pd</p>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <!-- TAMPILAN LAYAR APLIKASI (BKU Card) -->
-                                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col no-print overflow-hidden relative">
+                                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col no-print print:hidden overflow-hidden relative border-none print:border-none print:shadow-none">
                                         
                                         <!-- Header Daftar Transaksi & Filter Bulan -->
                                         <div class="sticky top-0 z-30 h-14 md:h-16 px-4 md:px-5 border-b border-gray-200 flex justify-between items-center bg-white/95 backdrop-blur-md">
@@ -544,7 +591,7 @@
                         <div x-data="iuranApp" @open-add-iuran.window="openModal()" @open-pembayaran-iuran.window="openPembayaranModal()" x-transition.opacity class="pb-24 md:pb-0">
                             
                             <!-- MODAL 1: Form Tambah/Edit Data Sekolah -->
-                            <div x-show="isModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4" style="display: none;">
+                            <div x-show="isModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4 print:hidden" style="display: none;">
                                 <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" @click="closeModal()" x-show="isModalOpen" x-transition.opacity.duration.300ms></div>
                                 <div class="bg-white rounded-2xl w-full max-w-md shadow-xl overflow-hidden relative z-10 transform will-change-transform"
                                      x-show="isModalOpen"
@@ -569,7 +616,7 @@
                             </div>
 
                             <!-- MODAL 2: Form Input Iuran (Dual Update: Iuran + BKU) -->
-                            <div x-show="isPembayaranModalOpen" class="fixed inset-0 z-[110] flex items-center justify-center p-4" style="display: none;">
+                            <div x-show="isPembayaranModalOpen" class="fixed inset-0 z-[110] flex items-center justify-center p-4 print:hidden" style="display: none;">
                                 <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" @click="closePembayaranModal()" x-show="isPembayaranModalOpen" x-transition.opacity.duration.300ms></div>
                                 <div class="bg-white rounded-2xl w-full max-w-md shadow-xl overflow-hidden relative z-10 transform will-change-transform"
                                      x-show="isPembayaranModalOpen"
@@ -633,54 +680,62 @@
                             </div>
 
                             <!-- FORMAT CETAK IURAN STANDAR -->
-                            <div class="print-only w-full bg-white pb-10">
-                                <div class="mb-6 text-center">
-                                    <h2 class="text-2xl font-bold text-black uppercase tracking-wide">Laporan Daftar Iuran Sekolah</h2>
-                                    <p class="text-sm text-gray-700 mt-1">Rekapitulasi Pembayaran Pertemuan</p>
+                            <div class="print-only w-full bg-white pb-6">
+                                <div class="mb-2 text-center">
+                                    <h2 class="text-lg font-bold text-black uppercase tracking-wide">Laporan Daftar Iuran Sekolah</h2>
+                                    <p class="text-black font-semibold mt-0.5 text-sm">Rekapitulasi Pembayaran Pertemuan</p>
                                 </div>
                                 
-                                <table class="w-full border-collapse border border-black text-black mt-4">
+                                <table class="w-full border-collapse border border-black text-black mt-2">
                                     <thead>
-                                        <tr class="text-sm bg-gray-100">
-                                            <th class="border border-black p-2 text-center w-10">NO</th>
-                                            <th class="border border-black p-2 text-left">NAMA SEKOLAH</th>
-                                            <th class="border border-black p-2 text-center w-10">P1</th>
-                                            <th class="border border-black p-2 text-center w-10">P2</th>
-                                            <th class="border border-black p-2 text-center w-10">P3</th>
-                                            <th class="border border-black p-2 text-center w-10">P4</th>
-                                            <th class="border border-black p-2 text-center w-10">P5</th>
-                                            <th class="border border-black p-2 text-center w-10">P6</th>
-                                            <th class="border border-black p-2 text-right w-28">TOTAL</th>
+                                        <tr class="text-[11px] bg-gray-50">
+                                            <th class="border border-black py-1 px-1.5 text-center w-8">NO</th>
+                                            <th class="border border-black py-1 px-1.5 text-left">NAMA SEKOLAH</th>
+                                            <th class="border border-black py-1 px-1.5 text-center w-10">P1</th>
+                                            <th class="border border-black py-1 px-1.5 text-center w-10">P2</th>
+                                            <th class="border border-black py-1 px-1.5 text-center w-10">P3</th>
+                                            <th class="border border-black py-1 px-1.5 text-center w-10">P4</th>
+                                            <th class="border border-black py-1 px-1.5 text-center w-10">P5</th>
+                                            <th class="border border-black py-1 px-1.5 text-center w-10">P6</th>
+                                            <th class="border border-black py-1 px-1.5 text-right w-24">TOTAL</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="text-sm">
+                                    <tbody class="text-[11px]">
                                         <template x-for="(item, index) in iuranList" :key="item.id">
                                             <tr>
-                                                <td class="border border-black p-2 text-center align-top" x-text="index + 1"></td>
-                                                <td class="border border-black p-2 align-top">
-                                                    <div class="font-bold uppercase" x-text="item.nama_sekolah"></div>
-                                                    <div class="text-xs text-gray-600 mt-0.5" x-text="'Penyetor: ' + item.nama_guru"></div>
-                                                </td>
-                                                <td class="border border-black p-2 text-center align-top text-lg font-bold" x-text="item.p1 ? '✓' : ''"></td>
-                                                <td class="border border-black p-2 text-center align-top text-lg font-bold" x-text="item.p2 ? '✓' : ''"></td>
-                                                <td class="border border-black p-2 text-center align-top text-lg font-bold" x-text="item.p3 ? '✓' : ''"></td>
-                                                <td class="border border-black p-2 text-center align-top text-lg font-bold" x-text="item.p4 ? '✓' : ''"></td>
-                                                <td class="border border-black p-2 text-center align-top text-lg font-bold" x-text="item.p5 ? '✓' : ''"></td>
-                                                <td class="border border-black p-2 text-center align-top text-lg font-bold" x-text="item.p6 ? '✓' : ''"></td>
-                                                <td class="border border-black p-2 text-right align-top font-bold" x-text="hitungTotal(item)"></td>
+                                                <td class="border border-black py-1 px-1.5 text-center align-top" x-text="index + 1"></td>
+                                                <td class="border border-black py-1 px-1.5 align-top font-bold uppercase" x-text="item.nama_sekolah"></td>
+                                                <td class="border border-black py-1 px-1.5 text-center align-top text-sm font-bold" x-text="item.p1 ? '✓' : ''"></td>
+                                                <td class="border border-black py-1 px-1.5 text-center align-top text-sm font-bold" x-text="item.p2 ? '✓' : ''"></td>
+                                                <td class="border border-black py-1 px-1.5 text-center align-top text-sm font-bold" x-text="item.p3 ? '✓' : ''"></td>
+                                                <td class="border border-black py-1 px-1.5 text-center align-top text-sm font-bold" x-text="item.p4 ? '✓' : ''"></td>
+                                                <td class="border border-black py-1 px-1.5 text-center align-top text-sm font-bold" x-text="item.p5 ? '✓' : ''"></td>
+                                                <td class="border border-black py-1 px-1.5 text-center align-top text-sm font-bold" x-text="item.p6 ? '✓' : ''"></td>
+                                                <td class="border border-black py-1 px-1.5 text-right align-top font-bold" x-text="hitungTotal(item)"></td>
                                             </tr>
                                         </template>
                                         <template x-if="iuranList.length === 0">
                                             <tr>
-                                                <td colspan="9" class="border border-black p-4 text-center italic text-gray-500">Belum ada data sekolah.</td>
+                                                <td colspan="9" class="border border-black p-3 text-center italic text-gray-500">Belum ada data sekolah.</td>
                                             </tr>
                                         </template>
                                     </tbody>
                                 </table>
+
+                                <!-- Kolom Tanda Tangan Cetak Iuran -->
+                                <div class="mt-8 flex justify-end text-black w-full" style="page-break-inside: avoid;">
+                                    <div class="text-center w-56 text-[12px]">
+                                        <p>Bendahara</p>
+                                        <div class="h-16 flex items-center justify-center text-gray-400 italic">
+                                            Ttd
+                                        </div>
+                                        <p class="font-bold underline">Tika Zinawati, S.Pd</p>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Card Data Iuran -->
-                            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col no-print overflow-hidden relative min-h-[300px]">
+                            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col no-print print:hidden overflow-hidden relative min-h-[300px] border-none print:border-none print:shadow-none">
                                 
                                 <div class="sticky top-0 z-30 h-14 md:h-16 px-4 md:px-5 border-b border-gray-200 flex justify-between items-center bg-white/95 backdrop-blur-md">
                                     <h3 class="font-bold text-gray-800 text-sm md:text-lg">Data Iuran Sekolah</h3>
@@ -1026,6 +1081,14 @@
                 init() { this.fetchTransactions(); },
                 openAddModal() { this.editId = null; this.form = { type: 'income', date: new Date().toISOString().split('T')[0], category: '', description: '', amount: '' }; this.isTransactionModalOpen = true; },
                 
+                formatBulanTahun(val) {
+                    if (!val) return '';
+                    const parts = val.split('-');
+                    if(parts.length !== 2) return val;
+                    const months = ['JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MEI', 'JUNI', 'JULI', 'AGUSTUS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DESEMBER'];
+                    return `${months[parseInt(parts[1], 10) - 1]} ${parts[0]}`;
+                },
+
                 async fetchTransactions() {
                     this.isLoadingData = true;
                     try {
