@@ -480,17 +480,30 @@
                                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col no-print print:hidden overflow-hidden relative border-none print:border-none print:shadow-none">
                                         
                                         <!-- Header Daftar Transaksi & Filter Bulan -->
-                                        <div class="sticky top-0 z-30 h-16 md:h-20 px-4 md:px-6 border-b border-gray-200 flex justify-between items-center bg-white/95 backdrop-blur-md">
-                                            <h3 class="font-bold text-gray-800 text-base md:text-xl">Riwayat BKU</h3>
-                                            
-                                            <div class="flex items-center gap-2.5">
-                                                <input type="month" x-model="selectedMonth" @change="fetchTransactions()" 
-                                                    class="px-3 py-1.5 md:px-4 md:py-2 text-sm md:text-base border border-gray-200 rounded-lg bg-gray-50 text-gray-800 outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer font-bold shadow-sm">
+                                        <div class="sticky top-0 z-30 px-4 md:px-6 border-b border-gray-200 bg-white/95 backdrop-blur-md">
+                                            <div class="h-16 md:h-20 flex justify-between items-center">
+                                                <h3 class="font-bold text-gray-800 text-base md:text-xl">Riwayat BKU</h3>
                                                 
-                                                <button @click="window.print()" class="px-3 py-1.5 md:px-4 md:py-2 text-blue-600 border border-blue-200 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors active:scale-95 flex items-center gap-2 shadow-sm" title="Cetak Laporan">
-                                                    <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                                                    <span class="hidden md:inline text-sm md:text-base font-bold">Cetak</span>
-                                                </button>
+                                                <div class="flex items-center gap-2.5">
+                                                    <input type="month" x-model="selectedMonth" @change="fetchTransactions()" 
+                                                        class="px-3 py-1.5 md:px-4 md:py-2 text-sm md:text-base border border-gray-200 rounded-lg bg-gray-50 text-gray-800 outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer font-bold shadow-sm">
+                                                    
+                                                    <button @click="window.print()" class="px-3 py-1.5 md:px-4 md:py-2 text-blue-600 border border-blue-200 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors active:scale-95 flex items-center gap-2 shadow-sm" title="Cetak Laporan">
+                                                        <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                                        <span class="hidden md:inline text-sm md:text-base font-bold">Cetak</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <!-- Search Bar -->
+                                            <div class="pb-3">
+                                                <div class="relative">
+                                                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                                    <input type="text" x-model="searchQuery" placeholder="Cari nama sekolah..." 
+                                                        class="w-full pl-9 pr-8 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+                                                    <button x-show="searchQuery" @click="searchQuery = ''" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -535,7 +548,7 @@
                                                             <td class="px-2 py-3 align-top text-center print:hidden"></td>
                                                         </tr>
 
-                                                        <template x-for="(trx, index) in transactions" :key="trx.id">
+                                                        <template x-for="(trx, index) in filteredTransactions" :key="trx.id">
                                                             <tr class="hover:bg-gray-50/80 transition-colors">
                                                                 <td class="px-1 py-2 align-top text-center"><div class="text-[10px] md:text-[11px] font-semibold text-gray-500 mt-1" x-text="index + 1"></div></td>
                                                                 <td class="px-2 py-2 align-top"><div class="text-[10px] md:text-[11px] font-semibold text-gray-500 mt-1" x-text="trx.date.substring(8, 10) + '/' + trx.date.substring(5, 7)"></div></td>
@@ -656,13 +669,17 @@
                                         
                                         <div class="mb-4">
                                             <label class="block text-sm font-semibold text-gray-600 mb-2">Pertemuan Ke-</label>
-                                            <div class="grid grid-cols-6 gap-2">
+                                            <div class="grid grid-cols-7 gap-2">
                                                 <template x-for="p in ['p1','p2','p3','p4','p5','p6']" :key="p">
                                                     <label class="text-center relative group" :class="isPertemuanPaid(formPembayaran.sekolah_id, p) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'">
                                                         <input type="radio" name="pertemuan" :value="p" x-model="formPembayaran.pertemuan" class="peer sr-only" :disabled="isPertemuanPaid(formPembayaran.sekolah_id, p)">
                                                         <div class="px-0 py-2 border border-gray-200 rounded-lg text-[13px] font-bold uppercase transition-all peer-checked:bg-green-500 peer-checked:text-white peer-checked:border-green-500 peer-checked:shadow text-gray-500 bg-gray-50 peer-disabled:bg-gray-200 peer-disabled:text-gray-400 group-hover:not(.peer-disabled):bg-gray-100" x-text="p"></div>
                                                     </label>
                                                 </template>
+                                                <label class="text-center relative group cursor-pointer">
+                                                    <input type="radio" name="pertemuan" value="skip" x-model="formPembayaran.pertemuan" class="peer sr-only">
+                                                    <div class="px-0 py-2 border border-gray-200 rounded-lg text-[13px] font-bold transition-all peer-checked:bg-gray-500 peer-checked:text-white peer-checked:border-gray-500 peer-checked:shadow text-gray-500 bg-gray-50 group-hover:bg-gray-100">-</div>
+                                                </label>
                                             </div>
                                             <p x-show="formPembayaran.sekolah_id && !formPembayaran.pertemuan" class="text-xs text-red-500 mt-1">Semua pertemuan sudah lunas dibayar.</p>
                                         </div>
@@ -714,12 +731,12 @@
                                             <tr>
                                                 <td class="border border-black py-1 px-1.5 text-center align-top" x-text="index + 1"></td>
                                                 <td class="border border-black py-1 px-1.5 align-top font-bold uppercase" x-text="item.nama_sekolah"></td>
-                                                <td class="border border-black py-1 px-1.5 text-center align-top text-sm font-bold" x-text="item.p1 ? '✓' : ''"></td>
-                                                <td class="border border-black py-1 px-1.5 text-center align-top text-sm font-bold" x-text="item.p2 ? '✓' : ''"></td>
-                                                <td class="border border-black py-1 px-1.5 text-center align-top text-sm font-bold" x-text="item.p3 ? '✓' : ''"></td>
-                                                <td class="border border-black py-1 px-1.5 text-center align-top text-sm font-bold" x-text="item.p4 ? '✓' : ''"></td>
-                                                <td class="border border-black py-1 px-1.5 text-center align-top text-sm font-bold" x-text="item.p5 ? '✓' : ''"></td>
-                                                <td class="border border-black py-1 px-1.5 text-center align-top text-sm font-bold" x-text="item.p6 ? '✓' : ''"></td>
+                                                <td class="border border-black py-1 px-1.5 text-center align-top text-sm font-bold" x-text="item.p1 === 'skip' ? '-' : (item.p1 ? '✓' : '')"></td>
+                                                <td class="border border-black py-1 px-1.5 text-center align-top text-sm font-bold" x-text="item.p2 === 'skip' ? '-' : (item.p2 ? '✓' : '')"></td>
+                                                <td class="border border-black py-1 px-1.5 text-center align-top text-sm font-bold" x-text="item.p3 === 'skip' ? '-' : (item.p3 ? '✓' : '')"></td>
+                                                <td class="border border-black py-1 px-1.5 text-center align-top text-sm font-bold" x-text="item.p4 === 'skip' ? '-' : (item.p4 ? '✓' : '')"></td>
+                                                <td class="border border-black py-1 px-1.5 text-center align-top text-sm font-bold" x-text="item.p5 === 'skip' ? '-' : (item.p5 ? '✓' : '')"></td>
+                                                <td class="border border-black py-1 px-1.5 text-center align-top text-sm font-bold" x-text="item.p6 === 'skip' ? '-' : (item.p6 ? '✓' : '')"></td>
                                                 <td class="border border-black py-1 px-1.5 text-right align-top font-bold" x-text="hitungTotal(item)"></td>
                                             </tr>
                                         </template>
@@ -793,8 +810,9 @@
                                                         <td class="px-1 py-2 align-top text-center">
                                                             <button type="button" @click="handleIuranClick(item, p, item[p])" 
                                                                 class="w-5 h-5 mx-auto rounded flex items-center justify-center transition-all shadow-sm active:scale-90 mt-1"
-                                                                :class="item[p] ? 'bg-green-500 text-white' : 'bg-gray-100 border border-gray-200 text-gray-300 hover:bg-gray-200'">
-                                                                <svg x-show="item[p]" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                                                :class="item[p] === 'skip' ? 'bg-gray-400 text-white' : (item[p] ? 'bg-green-500 text-white' : 'bg-gray-100 border border-gray-200 text-gray-300 hover:bg-gray-200')">
+                                                                <svg x-show="item[p] && item[p] !== 'skip'" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                                                <span x-show="item[p] === 'skip'" class="text-[10px] font-bold">-</span>
                                                             </button>
                                                         </td>
                                                     </template>
@@ -1086,6 +1104,7 @@
                 isTransactionModalOpen: false,
                 selectedMonth: (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; })(),
                 form: { type: 'income', date: new Date().toISOString().split('T')[0], category: '', description: '', amount: '' },
+                searchQuery: '',
 
                 init() { this.fetchTransactions(); },
                 openAddModal() { this.editId = null; this.form = { type: 'income', date: new Date().toISOString().split('T')[0], category: '', description: '', amount: '' }; this.isTransactionModalOpen = true; },
@@ -1116,6 +1135,12 @@
                 formatRupiah(angka) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka); },
                 get totalIncome() { return this.transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + (Number(t.amount) || 0), 0); },
                 get totalExpense() { return this.transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + (Number(t.amount) || 0), 0); },
+                
+                get filteredTransactions() {
+                    if (!this.searchQuery.trim()) return this.transactions;
+                    const q = this.searchQuery.toLowerCase().trim();
+                    return this.transactions.filter(t => t.description && t.description.toLowerCase().includes(q));
+                },
                 
                 get processedTransactions() {
                     let currentSaldo = this.saldoPindahan; 
@@ -1197,8 +1222,9 @@
                     }));
                 },
                 
-                async handleIuranClick(item, fieldPertemuan, isPaid) {
-                    if (!isPaid) {
+                async handleIuranClick(item, fieldPertemuan, currentStatus) {
+                    // Jika status saat ini false/undefined/null, buka modal pembayaran
+                    if (!currentStatus) {
                         this.formPembayaran = {
                             sekolah_id: item.id,
                             pertemuan: fieldPertemuan,
@@ -1206,13 +1232,17 @@
                             nominal: this.$store.config.nominalIuran 
                         };
                         this.isPembayaranModalOpen = true;
+                    } else if (currentStatus === 'skip') {
+                        // Jika status 'skip', beri tahu user bahwa tidak bisa diubah dari sini
+                        window.dispatchEvent(new CustomEvent('show-alert', {detail: {title: 'Informasi', message: 'Status ini ditandai sebagai tidak perlu membayar ("-").\n\nUntuk mengubah status ini, silakan edit data sekolah atau hubungi administrator.'}}));
                     } else {
+                        // Jika sudah bayar (true), beri tahu untuk hapus via BKU
                         window.dispatchEvent(new CustomEvent('show-alert', {detail: {title: 'Penghapusan Ditolak', message: '⚠️ Untuk menjaga keamanan arus kas, pembatalan iuran (hapus ceklis) hanya bisa dilakukan dengan cara menghapus transaksi yang bersangkutan di tab "Buku Kas" (Riwayat BKU).'}}));
                     }
                 },
 
                 hitungTotal(item) {
-                    const count = [item.p1, item.p2, item.p3, item.p4, item.p5, item.p6].filter(Boolean).length;
+                    const count = [item.p1, item.p2, item.p3, item.p4, item.p5, item.p6].filter(v => v === true).length;
                     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(count * this.$store.config.nominalIuran);
                 },
 
@@ -1225,7 +1255,9 @@
                 isPertemuanPaid(sekolahId, p) {
                     if (!sekolahId) return false;
                     const sekolah = this.iuranList.find(s => s.id === sekolahId);
-                    return sekolah ? sekolah[p] : false;
+                    if (!sekolah) return false;
+                    // Return true if already paid (true) or skipped ('skip')
+                    return sekolah[p] === true || sekolah[p] === 'skip';
                 },
                 
                 autoSelectPertemuan() {
@@ -1233,6 +1265,7 @@
                     if (sekolahId) {
                         const sekolah = this.iuranList.find(s => s.id === sekolahId);
                         if (sekolah) {
+                            // Cari pertemuan yang belum dibayar (false, undefined, atau null)
                             const unpaid = ['p1','p2','p3','p4','p5','p6'].find(p => !sekolah[p]);
                             this.formPembayaran.pertemuan = unpaid || ''; 
                         }
@@ -1247,12 +1280,31 @@
                     try {
                         const currentUser = auth.currentUser;
                         const nominalInput = Number(this.formPembayaran.nominal) || 0;
+                        const isSkipMode = this.formPembayaran.pertemuan === 'skip';
                         
                         const updateData = {};
-                        updateData[this.formPembayaran.pertemuan] = true;
+                        // Jika memilih "-" (skip), simpan string 'skip', jika tidak simpan true
+                        if (isSkipMode) {
+                            // Cari pertemuan yang belum diisi untuk skip
+                            const sekolah = this.iuranList.find(s => s.id === this.formPembayaran.sekolah_id);
+                            if (sekolah) {
+                                const unpaidPertemuan = ['p1','p2','p3','p4','p5','p6'].find(p => !sekolah[p]);
+                                if (unpaidPertemuan) {
+                                    updateData[unpaidPertemuan] = 'skip';
+                                } else {
+                                    window.dispatchEvent(new CustomEvent('show-alert', {detail: {title: 'Perhatian', message: 'Semua pertemuan sudah terisi.'}}));
+                                    this.isSubmittingForm = false;
+                                    return;
+                                }
+                            }
+                        } else {
+                            updateData[this.formPembayaran.pertemuan] = true;
+                        }
+                        
                         await IuranService.updateIuran(this.formPembayaran.sekolah_id, updateData);
 
-                        if (nominalInput > 0) {
+                        // Hanya tambah ke BKU jika bukan mode skip dan nominal > 0
+                        if (!isSkipMode && nominalInput > 0) {
                             const sekolahTerpilih = this.iuranList.find(s => s.id === this.formPembayaran.sekolah_id);
                             const namaSekolah = sekolahTerpilih ? sekolahTerpilih.nama_sekolah : 'Sekolah';
                             const bkuPayload = {
@@ -1270,6 +1322,9 @@
                             setTimeout(() => {
                                 window.dispatchEvent(new CustomEvent('change-tab', { detail: 'kas' }));
                             }, 300);
+                        } else if (isSkipMode) {
+                            window.dispatchEvent(new CustomEvent('show-alert', {detail: {title: 'Berhasil', message: 'Status "-" (tidak bayar) berhasil disimpan.\nTidak ada transaksi yang dimasukkan ke Buku Kas (BKU).'}}));
+                            this.closePembayaranModal();
                         } else {
                             window.dispatchEvent(new CustomEvent('show-alert', {detail: {title: 'Berhasil', message: 'Ceklis iuran historis berhasil disimpan.\nTidak ada transaksi yang dimasukkan ke Buku Kas (BKU) karena nominal Rp 0.'}}));
                             this.closePembayaranModal();
