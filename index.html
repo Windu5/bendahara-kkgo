@@ -1233,8 +1233,23 @@
                         };
                         this.isPembayaranModalOpen = true;
                     } else if (currentStatus === 'skip') {
-                        // Jika status 'skip', beri tahu user bahwa tidak bisa diubah dari sini
-                        window.dispatchEvent(new CustomEvent('show-alert', {detail: {title: 'Informasi', message: 'Status ini ditandai sebagai tidak perlu membayar ("-").\n\nUntuk mengubah status ini, silakan edit data sekolah atau hubungi administrator.'}}));
+                        // Jika status 'skip', konfirmasi untuk membatalkan
+                        window.dispatchEvent(new CustomEvent('show-confirm', {
+                            detail: {
+                                title: 'Batalkan Status "-"?',
+                                message: 'Apakah Anda yakin ingin membatalkan status "tidak perlu bayar" pada pertemuan ini?\n\nStatus akan dikembalikan menjadi Belum Bayar.',
+                                onConfirm: async () => {
+                                    try {
+                                        const updateData = {};
+                                        updateData[fieldPertemuan] = false;
+                                        await IuranService.updateIuran(item.id, updateData);
+                                        window.dispatchEvent(new CustomEvent('show-alert', {detail: {title: 'Berhasil', message: 'Status "-" berhasil dibatalkan.\nPertemuan ini kembali ke status Belum Bayar.'}}));
+                                    } catch (error) {
+                                        window.dispatchEvent(new CustomEvent('show-alert', {detail: {title: 'Gagal', message: 'Gagal membatalkan status: ' + error.message}}));
+                                    }
+                                }
+                            }
+                        }));
                     } else {
                         // Jika sudah bayar (true), beri tahu untuk hapus via BKU
                         window.dispatchEvent(new CustomEvent('show-alert', {detail: {title: 'Penghapusan Ditolak', message: '⚠️ Untuk menjaga keamanan arus kas, pembatalan iuran (hapus ceklis) hanya bisa dilakukan dengan cara menghapus transaksi yang bersangkutan di tab "Buku Kas" (Riwayat BKU).'}}));
