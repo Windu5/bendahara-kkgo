@@ -68,6 +68,22 @@
             thead { display: table-header-group; }
             tfoot { display: table-footer-group; }
         }
+
+        /* Skeleton Loading Animation */
+        @keyframes skeleton-pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+        .skeleton {
+            background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.5s ease-in-out infinite;
+            border-radius: 6px;
+        }
+        @keyframes skeleton-shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
     </style>
 
     <!-- PWA Setup: Manifest & Meta Tags (Standar Mobile Experience) -->
@@ -509,8 +525,32 @@
 
                                         <!-- Konten Daftar Transaksi -->
                                         <div class="bg-gray-50/30 pb-2 min-h-[250px]">
-                                            <div x-show="isLoadingData" class="flex justify-center items-center p-10 print:hidden">
-                                                <div class="animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
+                                            <div x-show="isLoadingData" class="p-2 print:hidden">
+                                                <table class="w-full text-left border-collapse">
+                                                    <thead class="bg-gray-50/95 border-b border-gray-200">
+                                                        <tr class="text-[9px] md:text-[11px] text-gray-400 uppercase tracking-wider">
+                                                            <th class="px-2 py-2 w-8"><div class="skeleton h-3 w-6 mx-auto"></div></th>
+                                                            <th class="px-2 py-2 w-12 md:w-16"><div class="skeleton h-3 w-8"></div></th>
+                                                            <th class="px-2 py-2"><div class="skeleton h-3 w-14"></div></th>
+                                                            <th class="px-2 py-2 text-right"><div class="skeleton h-3 w-16 ml-auto"></div></th>
+                                                            <th class="px-2 py-2 w-14"><div class="skeleton h-3 w-8 mx-auto"></div></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="divide-y divide-gray-100 bg-white">
+                                                        <template x-for="i in 5" :key="i">
+                                                            <tr>
+                                                                <td class="px-2 py-3 text-center"><div class="skeleton h-3 w-4 mx-auto"></div></td>
+                                                                <td class="px-2 py-3"><div class="skeleton h-3 w-10"></div></td>
+                                                                <td class="px-2 py-3">
+                                                                    <div class="skeleton h-4 w-3/4 mb-1.5"></div>
+                                                                    <div class="skeleton h-2.5 w-1/2"></div>
+                                                                </td>
+                                                                <td class="px-2 py-3 text-right"><div class="skeleton h-4 w-16 ml-auto"></div></td>
+                                                                <td class="px-2 py-3 text-center"><div class="skeleton h-5 w-5 mx-auto rounded-full"></div></td>
+                                                            </tr>
+                                                        </template>
+                                                    </tbody>
+                                                </table>
                                             </div>
 
                                             <template x-if="!isLoadingData && transactions.length === 0 && saldoPindahan === 0">
@@ -778,7 +818,43 @@
                                 </div>
 
                                 <div class="overflow-x-auto flex-1 bg-gray-50/30">
-                                    <div x-show="isLoading" class="flex justify-center p-10"><div class="animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div></div>
+                                    <div x-show="isLoading" class="p-2 print:hidden">
+                                        <table class="w-full text-left border-collapse min-w-[500px] md:min-w-[800px]">
+                                            <thead class="bg-gray-100 border-b border-gray-200">
+                                                <tr class="text-[9px] md:text-[11px] text-gray-400 uppercase tracking-wider">
+                                                    <th class="px-2 py-2 w-8"><div class="skeleton h-3 w-5 mx-auto"></div></th>
+                                                    <th class="px-2 py-2 min-w-[120px]"><div class="skeleton h-3 w-20"></div></th>
+                                                    <th class="px-1 py-2 w-8"><div class="skeleton h-3 w-5 mx-auto"></div></th>
+                                                    <th class="px-1 py-2 w-8"><div class="skeleton h-3 w-5 mx-auto"></div></th>
+                                                    <th class="px-1 py-2 w-8"><div class="skeleton h-3 w-5 mx-auto"></div></th>
+                                                    <th class="px-1 py-2 w-8"><div class="skeleton h-3 w-5 mx-auto"></div></th>
+                                                    <th class="px-1 py-2 w-8"><div class="skeleton h-3 w-5 mx-auto"></div></th>
+                                                    <th class="px-1 py-2 w-8"><div class="skeleton h-3 w-5 mx-auto"></div></th>
+                                                    <th class="px-2 py-2 min-w-[80px]"><div class="skeleton h-3 w-12 ml-auto"></div></th>
+                                                    <th class="px-2 py-2 w-14"><div class="skeleton h-3 w-8 mx-auto"></div></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-gray-100 bg-white">
+                                                <template x-for="i in 5" :key="i">
+                                                    <tr>
+                                                        <td class="px-2 py-3 text-center"><div class="skeleton h-3 w-4 mx-auto"></div></td>
+                                                        <td class="px-2 py-3">
+                                                            <div class="skeleton h-3.5 w-24 mb-1.5"></div>
+                                                            <div class="skeleton h-2.5 w-16"></div>
+                                                        </td>
+                                                        <td class="px-1 py-3 text-center"><div class="skeleton h-5 w-5 mx-auto rounded"></div></td>
+                                                        <td class="px-1 py-3 text-center"><div class="skeleton h-5 w-5 mx-auto rounded"></div></td>
+                                                        <td class="px-1 py-3 text-center"><div class="skeleton h-5 w-5 mx-auto rounded"></div></td>
+                                                        <td class="px-1 py-3 text-center"><div class="skeleton h-5 w-5 mx-auto rounded"></div></td>
+                                                        <td class="px-1 py-3 text-center"><div class="skeleton h-5 w-5 mx-auto rounded"></div></td>
+                                                        <td class="px-1 py-3 text-center"><div class="skeleton h-5 w-5 mx-auto rounded"></div></td>
+                                                        <td class="px-2 py-3 text-right"><div class="skeleton h-3.5 w-14 ml-auto"></div></td>
+                                                        <td class="px-2 py-3 text-center"><div class="skeleton h-5 w-5 mx-auto rounded-full"></div></td>
+                                                    </tr>
+                                                </template>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                     
                                     <table x-show="!isLoading" class="w-full text-left border-collapse min-w-[500px] md:min-w-[800px]">
                                         <thead class="bg-gray-100 border-b border-gray-200">
