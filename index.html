@@ -168,7 +168,14 @@
 
         <!-- DASHBOARD -->
         <template x-if="user">
-            <div x-data="{ activeTab: 'kas', showActionMenu: false }" class="w-full h-screen bg-gray-50 flex flex-col overflow-hidden">
+            <div x-data="{ activeTab: 'kas', showActionMenu: false, isOffline: !navigator.onLine }" @online.window="isOffline = false" @offline.window="isOffline = true" class="w-full h-screen bg-gray-50 flex flex-col overflow-hidden">
+                
+                <!-- OFFLINE BANNER -->
+                <div x-show="isOffline" x-transition.duration.300ms
+                     class="bg-amber-500 text-white text-center py-1.5 px-4 text-xs font-bold flex items-center justify-center gap-2 shrink-0 print:hidden z-50">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18.364 5.636a9 9 0 010 12.728M5.636 5.636a9 9 0 000 12.728M12 12h.01"></path><line x1="2" y1="2" x2="22" y2="22" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"></line></svg>
+                    Mode Offline - Data tersimpan lokal, akan sync otomatis saat online
+                </div>
                 
                 <!-- ACTION MENU POPUP -->
                 <div x-show="showActionMenu" class="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:p-4 pb-24 px-4 print:hidden" style="display: none;">
@@ -989,7 +996,7 @@
         import Alpine from "https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/module.esm.js";
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp, query, where, onSnapshot, doc, updateDoc, deleteDoc, orderBy, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+        import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, addDoc, serverTimestamp, query, where, onSnapshot, doc, updateDoc, deleteDoc, orderBy, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCsgM8CK9-_WhFuQr-xe7FkL_kB6qRR2RQ",
@@ -1002,7 +1009,12 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
+        // Firestore dengan Offline Persistence: data di-cache di IndexedDB
+        // Saat offline, data tetap bisa dibaca dari cache lokal
+        // Saat online kembali, perubahan otomatis di-sync ke server
+        const db = initializeFirestore(app, {
+            localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+        });
 
         const FinanceService = {
             async addTransaction(data, userUid) {
